@@ -57,7 +57,7 @@ jobs:
             --dir dist/python-runtime
           gh release download "$RELEASE_TAG" \
             --repo "${GITHUB_REPOSITORY}" \
-            --pattern "codex-package-*-unknown-linux-musl.tar.gz" \
+            --pattern "winkagent-package-*-unknown-linux-musl.tar.gz" \
             --dir dist/python-runtime-packages
 
           shopt -s nullglob
@@ -86,7 +86,7 @@ jobs:
             python3 sdk/python/scripts/update_sdk_artifacts.py \
               stage-runtime \
               "$stage_dir" \
-              "dist/python-runtime-packages/codex-package-${target}.tar.gz" \
+              "dist/python-runtime-packages/winkagent-package-${target}.tar.gz" \
               --codex-version "$RELEASE_TAG" \
               --platform-tag "$platform_tag"
             "${RUNNER_TEMP}/python-runtime-build-venv/bin/python" -m build \

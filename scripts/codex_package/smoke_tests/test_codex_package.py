@@ -5,7 +5,7 @@ ROOT_OF_EXTRACTED_PACKAGE
 │   ├── codex[.exe]                       # CLI package only
 │   ├── codex-app-server[.exe]            # app-server package only
 │   └── codex-code-mode-host[.exe]
-├── codex-package.json
+├── winkagent-package.json
 ├── codex-path
 │   └── rg[.exe]
 └── codex-resources

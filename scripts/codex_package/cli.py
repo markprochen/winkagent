@@ -50,7 +50,7 @@ def parse_args() -> argparse.Namespace:
 
 def create_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Build a canonical Codex package directory and optional archive.",
+        description="Build a canonical WinkAgent package directory and optional archive.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -65,14 +65,14 @@ def create_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--variant",
         choices=sorted(PACKAGE_VARIANTS),
-        default="codex",
+        default="winkagent",
         help="Package variant to build.",
     )
     parser.add_argument(
         "--package-version",
         type=parse_package_version,
         default=read_workspace_version(),
-        help="Semantic version to record in codex-package.json.",
+        help="Semantic version to record in winkagent-package.json.",
     )
     parser.add_argument(
         "--package-dir",
@@ -192,7 +192,7 @@ def assemble_package(args: argparse.Namespace) -> Path:
     package_dir = (
         package_dir_arg.resolve()
         if package_dir_arg is not None
-        else Path(tempfile.mkdtemp(prefix="codex-package-")).resolve()
+        else Path(tempfile.mkdtemp(prefix="winkagent-package-")).resolve()
     )
 
     source_outputs = build_source_binaries(
@@ -254,9 +254,9 @@ def archive_package(package_dir: Path, args: argparse.Namespace) -> None:
     for archive_output in args.archive_output:
         archive_path = archive_output.resolve()
         write_archive(package_dir, archive_path, force=args.force)
-        print(f"Built Codex package archive at {archive_path}")
+        print(f"Built WinkAgent package archive at {archive_path}")
 
-    print(f"Built Codex package directory at {package_dir}")
+    print(f"Built WinkAgent package directory at {package_dir}")
 
 
 def resolve_optional_input_path(

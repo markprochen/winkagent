@@ -126,7 +126,7 @@ wire_api = "responses"
             .env("CODEX_MANAGED_BY_NPM", "1")
             .env(
                 "CODEX_MANAGED_PACKAGE_ROOT",
-                self.workspace.join("node_modules/@openai/codex"),
+                self.workspace.join("node_modules/winkagent"),
             )
             .env(
                 "CODEX_APP_SERVER_MANAGED_CONFIG_PATH",
@@ -630,7 +630,7 @@ async fn feedback_with_logs_does_not_execute_path_helpers() -> Result<()> {
     let path = fixture.path.to_string_lossy();
     let marker = fixture.marker.to_string_lossy();
     let home = fixture.root.path().to_string_lossy();
-    let package_root = fixture.workspace.join("node_modules/@openai/codex");
+    let package_root = fixture.workspace.join("node_modules/winkagent");
     let package_root = package_root.to_string_lossy();
     let mut app_server = TestAppServer::builder()
         .with_program(&fixture.program)

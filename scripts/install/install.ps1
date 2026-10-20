@@ -81,7 +81,7 @@ function Assert-ValidReleaseVersion {
     )
 
     if ($Version -cne "latest" -and $Version -cnotmatch "^[0-9]+\.[0-9]+\.[0-9]+(?:-alpha(?:\.[0-9]+){0,2}|-beta(?:\.[0-9]+)?)?$") {
-        throw "Invalid Codex release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
+        throw "Invalid WinkAgent release version: $Version. Expected latest or x.y.z[-alpha[.N[.M]]|-beta[.N]]."
     }
 }
 
@@ -164,8 +164,8 @@ function Resolve-ReleaseAssetSelection {
 
     $version = $ResolvedRelease.Version
     $releaseMetadata = $ResolvedRelease.Metadata
-    $packageAsset = "codex-package-$Target.tar.gz"
-    $checksumAsset = "codex-package_SHA256SUMS"
+    $packageAsset = "winkagent-package-$Target.tar.gz"
+    $checksumAsset = "winkagent-package_SHA256SUMS"
     $packageUrl = $null
     $packageFallbackUrl = $null
     $checksumUrl = $null
@@ -188,7 +188,7 @@ function Resolve-ReleaseAssetSelection {
         }
     }
 
-    $packageAsset = "codex-npm-$NpmTag-$version.tgz"
+    $packageAsset = "winkagent-npm-$NpmTag-$version.tgz"
     $packageUrl = $null
     $packageFallbackUrl = $null
     if ($ResolvedRelease.Source -eq "ReleasesOpenAICom") {
@@ -197,7 +197,7 @@ function Resolve-ReleaseAssetSelection {
     }
     $packageMetadata = Find-ReleaseAssetMetadata -AssetName $packageAsset -ReleaseMetadata $releaseMetadata -Url $packageUrl -FallbackUrl $packageFallbackUrl
     if ($null -eq $packageMetadata) {
-        throw "Could not find Codex package or platform npm release assets for Codex $version."
+        throw "Could not find WinkAgent package or platform npm release assets for WinkAgent $version."
     }
 
     return [PSCustomObject]@{
@@ -230,7 +230,7 @@ function Test-ArchiveDigest {
     }
 
     if ($actualDigest -ne $ExpectedDigest) {
-        throw "Downloaded Codex archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
+        throw "Downloaded WinkAgent archive checksum did not match expected digest. Expected $ExpectedDigest but got $actualDigest."
     }
 }
 
@@ -248,7 +248,7 @@ function Get-PackageArchiveDigest {
         }
     }
 
-    throw "Could not find SHA-256 digest for $AssetName in codex-package_SHA256SUMS."
+    throw "Could not find SHA-256 digest for $AssetName in winkagent-package_SHA256SUMS."
 }
 
 function Path-Contains {
@@ -331,7 +331,7 @@ function Resolve-VersionFromReleaseMetadata {
     )
 
     if (-not $ReleaseMetadata.tag_name) {
-        throw "Failed to resolve the latest Codex release version."
+        throw "Failed to resolve the latest WinkAgent release version."
     }
 
     $resolvedVersion = Normalize-Version -RawVersion $ReleaseMetadata.tag_name
@@ -356,7 +356,7 @@ function Resolve-ReleaseFromGitHub {
     try {
         $releaseMetadata = Invoke-RestMethod -Uri $metadataUri
     } catch {
-        throw "Could not fetch GitHub release metadata for Codex $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
+        throw "Could not fetch GitHub release metadata for WinkAgent $requestedRelease. GitHub API may be unavailable or rate limited. $($_.Exception.Message)"
     }
 
     if ($NormalizedVersion -eq "latest") {
@@ -385,7 +385,7 @@ function Resolve-ReleaseFromReleases {
         $releaseMetadata = [string]$metadataResponse.Content | ConvertFrom-Json -ErrorAction Stop
         $resolvedVersion = Resolve-VersionFromReleaseMetadata -ReleaseMetadata $releaseMetadata
         if ($NormalizedVersion -ne "latest" -and $resolvedVersion -cne $NormalizedVersion) {
-            throw "Release metadata version did not match requested Codex version $NormalizedVersion."
+            throw "Release metadata version did not match requested WinkAgent version $NormalizedVersion."
         }
         $resolvedRelease = [PSCustomObject]@{
             Version = $resolvedVersion
@@ -416,15 +416,15 @@ function Resolve-Release {
 
 function Get-VersionFromBinary {
     param(
-        [string]$CodexPath
+        [string]$WinkAgentPath
     )
 
-    if (-not (Test-Path -LiteralPath $CodexPath -PathType Leaf)) {
+    if (-not (Test-Path -LiteralPath $WinkAgentPath -PathType Leaf)) {
         return $null
     }
 
     try {
-        $versionOutput = & $CodexPath --version 2>$null
+        $versionOutput = & $WinkAgentPath --version 2>$null
     } catch {
         return $null
     }
@@ -441,12 +441,12 @@ function Get-CurrentInstalledVersion {
         [string]$StandaloneCurrentDir
     )
 
-    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "bin\codex.exe")
+    $standaloneVersion = Get-VersionFromBinary -WinkAgentPath (Join-Path $StandaloneCurrentDir "bin\winkagent.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
 
-    $standaloneVersion = Get-VersionFromBinary -CodexPath (Join-Path $StandaloneCurrentDir "codex.exe")
+    $standaloneVersion = Get-VersionFromBinary -WinkAgentPath (Join-Path $StandaloneCurrentDir "codex.exe")
     if (-not [string]::IsNullOrWhiteSpace($standaloneVersion)) {
         return $standaloneVersion
     }
@@ -472,7 +472,7 @@ function Test-OldStandaloneBinLayout {
         return $false
     }
 
-    $requiredFiles = @("codex.exe", "rg.exe")
+    $requiredFiles = @("winkagent.exe", "rg.exe")
     foreach ($fileName in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $VisibleBinDir $fileName) -PathType Leaf)) {
             return $false
@@ -480,6 +480,7 @@ function Test-OldStandaloneBinLayout {
     }
 
     $knownFiles = @(
+        "winkagent.exe",
         "codex.exe",
         "rg.exe",
         "codex-command-runner.exe",
@@ -508,9 +509,9 @@ function Move-OldStandaloneBinIfApproved {
         return $null
     }
 
-    Write-Step "We found an older Codex install at $VisibleBinDir"
-    Write-WarningStep "To continue, Codex needs to update the install at this path."
-    if (-not (Prompt-YesNo "Replace it with the current Codex setup now?")) {
+    Write-Step "We found an older WinkAgent install at $VisibleBinDir"
+    Write-WarningStep "To continue, WinkAgent needs to update the install at this path."
+    if (-not (Prompt-YesNo "Replace it with the current WinkAgent setup now?")) {
         throw "Cannot replace older standalone install without confirmation: $VisibleBinDir"
     }
 
@@ -522,7 +523,7 @@ function Move-OldStandaloneBinIfApproved {
 
 function Add-JunctionSupportType {
     # Older installer types remain loaded when users rerun irm | iex in one session.
-    if (([System.Management.Automation.PSTypeName]'CodexInstaller.JunctionV3').Type) {
+    if (([System.Management.Automation.PSTypeName]'WinkAgentInstaller.JunctionV3').Type) {
         return
     }
 
@@ -534,7 +535,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Win32.SafeHandles;
 
-namespace CodexInstaller
+namespace WinkAgentInstaller
 {
     public static class JunctionV3
     {
@@ -689,7 +690,7 @@ function Set-JunctionTarget {
     )
 
     Add-JunctionSupportType
-    [CodexInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
+    [WinkAgentInstaller.JunctionV3]::SetTarget($LinkPath, $TargetPath)
 }
 
 function Test-IsJunction {
@@ -720,14 +721,14 @@ function Ensure-Junction {
     $item = Get-Item -LiteralPath $LinkPath -Force
     if (Test-IsJunction -Path $LinkPath) {
         Add-JunctionSupportType
-        $existingTarget = [CodexInstaller.JunctionV3]::ResolveDirectory($LinkPath)
+        $existingTarget = [WinkAgentInstaller.JunctionV3]::ResolveDirectory($LinkPath)
         if (-not [string]::IsNullOrWhiteSpace($InstallerOwnedTargetPrefix)) {
-            $ownedTargetPrefix = [CodexInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
+            $ownedTargetPrefix = [WinkAgentInstaller.JunctionV3]::ResolveDirectory($InstallerOwnedTargetPrefix) + "\"
             if (-not $existingTarget.StartsWith($ownedTargetPrefix, [System.StringComparison]::OrdinalIgnoreCase)) {
                 throw "Refusing to retarget junction at $LinkPath because it is not managed by this installer."
             }
         }
-        if ($existingTarget.Equals([CodexInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
+        if ($existingTarget.Equals([WinkAgentInstaller.JunctionV3]::ResolveDirectory($TargetPath), [System.StringComparison]::OrdinalIgnoreCase)) {
             return
         }
 
@@ -765,8 +766,8 @@ function Test-PackageContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "codex-package.json",
-        "bin\codex.exe",
+        "winkagent-package.json",
+        "bin\winkagent.exe",
         "bin\codex-code-mode-host.exe",
         "codex-path\rg.exe",
         "codex-resources\codex-command-runner.exe",
@@ -791,7 +792,8 @@ function Test-LegacyPlatformNpmContentsAreComplete {
     }
 
     $expectedFiles = @(
-        "codex.exe",
+        "winkagent.exe",
+        "codex-code-mode-host.exe",
         "codex-resources\codex-command-runner.exe",
         "codex-resources\codex-windows-sandbox-setup.exe",
         "codex-resources\rg.exe"
@@ -818,25 +820,25 @@ function Test-ReleaseIsComplete {
             if (-not (Test-PackageContentsAreComplete -PackageDir $ReleaseDir)) {
                 return $false
             }
-            $codexPath = Join-Path $ReleaseDir "bin\codex.exe"
+            $codexPath = Join-Path $ReleaseDir "bin\winkagent.exe"
         }
         "LegacyPlatformNpm" {
             if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $ReleaseDir)) {
                 return $false
             }
-            $codexPath = Join-Path $ReleaseDir "codex.exe"
+            $codexPath = Join-Path $ReleaseDir "winkagent.exe"
         }
         default {
-            throw "Unknown Codex installer layout: $Layout"
+            throw "Unknown WinkAgent installer layout: $Layout"
         }
     }
 
     return (Split-Path -Leaf $ReleaseDir) -eq "$ExpectedVersion-$ExpectedTarget" -and
-        (Get-VersionFromBinary -CodexPath $codexPath) -ceq $ExpectedVersion
+        (Get-VersionFromBinary -WinkAgentPath $codexPath) -ceq $ExpectedVersion
 }
 
-function Get-ExistingCodexCommand {
-    $existing = Get-Command codex -ErrorAction SilentlyContinue
+function Get-ExistingWinkAgentCommand {
+    $existing = Get-Command winkagent -ErrorAction SilentlyContinue
     if ($null -eq $existing) {
         return $null
     }
@@ -844,7 +846,7 @@ function Get-ExistingCodexCommand {
     return $existing.Source
 }
 
-function Get-ExistingCodexManager {
+function Get-ExistingWinkAgentManager {
     param(
         [string]$ExistingPath,
         [string]$VisibleBinDir
@@ -874,14 +876,14 @@ function Get-ConflictingInstall {
         [string]$VisibleBinDir
     )
 
-    $existingPath = Get-ExistingCodexCommand
-    $manager = Get-ExistingCodexManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
+    $existingPath = Get-ExistingWinkAgentCommand
+    $manager = Get-ExistingWinkAgentManager -ExistingPath $existingPath -VisibleBinDir $VisibleBinDir
     if ($null -eq $manager) {
         return $null
     }
 
-    Write-Step "Detected existing $manager-managed Codex at $existingPath"
-    Write-WarningStep "Multiple managed Codex installs can be ambiguous because PATH order decides which one runs."
+    Write-Step "Detected existing $manager-managed WinkAgent at $existingPath"
+    Write-WarningStep "Multiple managed WinkAgent installs can be ambiguous because PATH order decides which one runs."
 
     return [PSCustomObject]@{
         Manager = $manager
@@ -901,33 +903,33 @@ function Maybe-HandleConflictingInstall {
     $manager = $Conflict.Manager
 
     $uninstallArgs = if ($manager -eq "bun") {
-        @("remove", "-g", "@openai/codex")
+        @("remove", "-g", "winkagent")
     } else {
-        @("uninstall", "-g", "@openai/codex")
+        @("uninstall", "-g", "winkagent")
     }
     $uninstallCommand = if ($manager -eq "bun") { "bun" } else { "npm" }
 
-    if (Prompt-YesNo "Uninstall the existing $manager-managed Codex now?") {
+    if (Prompt-YesNo "Uninstall the existing $manager-managed WinkAgent now?") {
         Write-Step "Running: $uninstallCommand $($uninstallArgs -join ' ')"
         try {
             & $uninstallCommand @uninstallArgs
         } catch {
-            Write-WarningStep "Failed to uninstall the existing $manager-managed Codex. Continuing with the standalone install."
+            Write-WarningStep "Failed to uninstall the existing $manager-managed WinkAgent. Continuing with the standalone install."
         }
     } else {
-        Write-WarningStep "Leaving the existing $manager-managed Codex installed. PATH order will determine which codex runs."
+        Write-WarningStep "Leaving the existing $manager-managed WinkAgent installed. PATH order will determine which codex runs."
     }
 }
 
-function Test-VisibleCodexCommand {
+function Test-VisibleWinkAgentCommand {
     param(
         [string]$VisibleBinDir
     )
 
-    $codexCommand = Join-Path $VisibleBinDir "codex.exe"
+    $codexCommand = Join-Path $VisibleBinDir "winkagent.exe"
     & $codexCommand --version *> $null
     if ($LASTEXITCODE -ne 0) {
-        throw "Installed Codex command failed verification: $codexCommand --version"
+        throw "Installed WinkAgent command failed verification: $codexCommand --version"
     }
 }
 
@@ -937,7 +939,7 @@ if ($env:OS -ne "Windows_NT") {
 }
 
 if (-not [Environment]::Is64BitOperatingSystem) {
-    Write-Error "Codex requires a 64-bit version of Windows."
+    Write-Error "WinkAgent requires a 64-bit version of Windows."
     exit 1
 }
 
@@ -979,7 +981,7 @@ if ($deferSelection) {
 $autoUpdateVersion = Join-Path $standaloneRoot "auto-update-version"
 $lockPath = Join-Path $standaloneRoot "install.lock"
 
-$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\OpenAI\Codex\bin"
+$defaultVisibleBinDir = Join-Path $env:LOCALAPPDATA "Programs\WinkAgent\bin"
 if ([string]::IsNullOrWhiteSpace($env:CODEX_INSTALL_DIR)) {
     $visibleBinDir = $defaultVisibleBinDir
 } else {
@@ -994,11 +996,11 @@ $releaseName = "$resolvedVersion-$target"
 $releaseDir = Join-Path $releasesDir $releaseName
 
 if (-not [string]::IsNullOrWhiteSpace($currentVersion) -and $currentVersion -ne $resolvedVersion) {
-    Write-Step "Updating Codex CLI from $currentVersion to $resolvedVersion"
+    Write-Step "Updating WinkAgent CLI from $currentVersion to $resolvedVersion"
 } elseif (-not [string]::IsNullOrWhiteSpace($currentVersion)) {
-    Write-Step "Updating Codex CLI"
+    Write-Step "Updating WinkAgent CLI"
 } else {
-    Write-Step "Installing Codex CLI"
+    Write-Step "Installing WinkAgent CLI"
 }
 Write-Step "Detected platform: $platformLabel"
 Write-Step "Resolved version: $resolvedVersion"
@@ -1006,7 +1008,7 @@ Write-Step "Resolved version: $resolvedVersion"
 $conflictingInstall = if ($daemonOnly) { $null } else { Get-ConflictingInstall -VisibleBinDir $visibleBinDir }
 $oldStandaloneBackup = $null
 
-$checksumAsset = "codex-package_SHA256SUMS"
+$checksumAsset = "winkagent-package_SHA256SUMS"
 $assetSelection = Resolve-ReleaseAssetSelection -ResolvedRelease $resolvedRelease -Target $target -NpmTag $npmTag
 $packageAsset = $assetSelection.PackageAsset
 $packageMetadata = $assetSelection.PackageMetadata
@@ -1059,7 +1061,7 @@ try {
             $currentTarget = if (Test-Path -LiteralPath $currentDir) { (Get-Item -LiteralPath $currentDir).Target } else { $null }
             if ($Release -ne "latest" -or [string]::IsNullOrEmpty($previousRelease) -or [string]::IsNullOrEmpty($currentTarget) -or
                 -not (Test-Path -LiteralPath (Join-Path $releasesDir $previousRelease)) -or
-                [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [CodexInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
+                [WinkAgentInstaller.JunctionV3]::ResolveDirectory($currentDir) -ne [WinkAgentInstaller.JunctionV3]::ResolveDirectory((Join-Path $releasesDir $previousRelease))) {
                 if ($env:CODEX_INSTALL_IF_CURRENT -eq "1") { throw "Daemon selection changed; retry the update." }
                 $script:guardRejected = $true
                 return
@@ -1084,7 +1086,7 @@ try {
             $checksumPath = Join-Path $tempDir $checksumAsset
             $stagingDir = Join-Path $releasesDir ".staging.$releaseName.$PID"
 
-            Write-Step "Downloading Codex CLI"
+            Write-Step "Downloading WinkAgent CLI"
             if ($installLayout -eq "Package") {
                 Invoke-WebRequestWithFallback -Metadata $checksumMetadata -OutFile $checksumPath -ExpectedDigest $checksumMetadata.Sha256 -AssetName $checksumAsset -ReleaseVersion $resolvedVersion -RequiredManifestAsset $packageAsset
                 $expectedPackageDigest = Get-PackageArchiveDigest -ManifestPath $checksumPath -AssetName $packageAsset
@@ -1101,7 +1103,7 @@ try {
             if ($installLayout -eq "Package") {
                 tar -xzf $archivePath -C $stagingDir
                 if (-not (Test-PackageContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Codex package archive did not contain the expected package layout."
+                    throw "Downloaded WinkAgent package archive did not contain the expected package layout."
                 }
             } else {
                 $extractDir = Join-Path $tempDir "extract"
@@ -1112,10 +1114,11 @@ try {
                 $resourcesDir = Join-Path $stagingDir "codex-resources"
                 New-Item -ItemType Directory -Force -Path $resourcesDir | Out-Null
                 $copyMap = @{
-                    "codex/codex.exe" = "codex.exe"
-                    "codex/codex-command-runner.exe" = "codex-resources\codex-command-runner.exe"
-                    "codex/codex-windows-sandbox-setup.exe" = "codex-resources\codex-windows-sandbox-setup.exe"
-                    "path/rg.exe" = "codex-resources\rg.exe"
+                    "bin/winkagent.exe" = "winkagent.exe"
+                    "bin/codex-code-mode-host.exe" = "codex-code-mode-host.exe"
+                    "codex-resources/codex-command-runner.exe" = "codex-resources\codex-command-runner.exe"
+                    "codex-resources/codex-windows-sandbox-setup.exe" = "codex-resources\codex-windows-sandbox-setup.exe"
+                    "codex-path/rg.exe" = "codex-resources\rg.exe"
                 }
 
                 foreach ($relativeSource in $copyMap.Keys) {
@@ -1123,7 +1126,7 @@ try {
                 }
 
                 if (-not (Test-LegacyPlatformNpmContentsAreComplete -PackageDir $stagingDir)) {
-                    throw "Downloaded Codex npm archive did not contain the expected legacy platform package layout."
+                    throw "Downloaded WinkAgent npm archive did not contain the expected legacy platform package layout."
                 }
             }
 
@@ -1134,7 +1137,7 @@ try {
         }
 
         if (-not (Test-ReleaseIsComplete -ReleaseDir $releaseDir -ExpectedVersion $resolvedVersion -ExpectedTarget $target -Layout $installLayout)) {
-            throw "Installed Codex command did not report expected version $resolvedVersion."
+            throw "Installed WinkAgent command did not report expected version $resolvedVersion."
         }
 
         New-Item -ItemType Directory -Force -Path $standaloneRoot | Out-Null
@@ -1142,8 +1145,8 @@ try {
             throw "A dedicated daemon is already selected; retry the update."
         }
         if ($daemonOnly -and -not $deferSelection) {
-            $installedCodex = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\codex.exe" } else { "codex.exe" })
-            & $installedCodex app-server daemon pid-update-loop --check-package-ownership | Out-Null
+            $installedWinkAgent = Join-Path $releaseDir $(if ($installLayout -eq "Package") { "bin\winkagent.exe" } else { "winkagent.exe" })
+            & $installedWinkAgent app-server daemon pid-update-loop --check-package-ownership | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "The production release does not support daemon-owned packages; the current selection was left unchanged."
             }
@@ -1152,15 +1155,15 @@ try {
         if ($daemonOnly -and -not $deferSelection) {
             Add-JunctionSupportType
             if (Test-Path -LiteralPath $currentDir) {
-                $previousDirectory = [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir)
+                $previousDirectory = [WinkAgentInstaller.JunctionV3]::ResolveDirectory($currentDir)
             }
         }
         Ensure-Junction -LinkPath $currentDir -TargetPath $releaseDir -InstallerOwnedTargetPrefix $releasesDir
         if ($daemonOnly -and -not $deferSelection -and
-            $previousDirectory -cne [CodexInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
+            $previousDirectory -cne [WinkAgentInstaller.JunctionV3]::ResolveDirectory($currentDir)) {
             try {
                 $previousName = if ($null -eq $previousDirectory) { "" } else { Split-Path -Leaf $previousDirectory }
-                $selectionId = [CodexInstaller.JunctionV3]::SelectionIdentity($currentDir)
+                $selectionId = [WinkAgentInstaller.JunctionV3]::SelectionIdentity($currentDir)
                 $history = Join-Path $standaloneRoot "selection-history"
                 [System.IO.File]::WriteAllText("$history.tmp.$PID", "$releaseName`n$previousName`n$selectionId`n")
                 Move-Item -LiteralPath "$history.tmp.$PID" -Destination $history -Force -ErrorAction Stop
@@ -1189,7 +1192,7 @@ try {
         $oldStandaloneBackup = Move-OldStandaloneBinIfApproved -VisibleBinDir $visibleBinDir -DefaultVisibleBinDir $defaultVisibleBinDir
         try {
             Ensure-Junction -LinkPath $visibleBinDir -TargetPath $currentBinDir -InstallerOwnedTargetPrefix $standaloneRoot
-            Test-VisibleCodexCommand -VisibleBinDir $visibleBinDir
+            Test-VisibleWinkAgentCommand -VisibleBinDir $visibleBinDir
         } catch {
             if ($null -ne $oldStandaloneBackup -and (Test-Path -LiteralPath $oldStandaloneBackup)) {
                 if (Test-Path -LiteralPath $visibleBinDir) {
@@ -1245,12 +1248,12 @@ if ($prioritizeVisibleBin) {
     }
 }
 
-Write-Step "Current PowerShell session: codex"
-Write-Step "Future PowerShell windows: open a new PowerShell window and run: codex"
-Write-Host "Codex CLI $resolvedVersion installed successfully."
+Write-Step "Current PowerShell session: winkagent"
+Write-Step "Future PowerShell windows: open a new PowerShell window and run: winkagent"
+Write-Host "WinkAgent CLI $resolvedVersion installed successfully."
 
-$codexCommand = Join-Path $visibleBinDir "codex.exe"
-if (Prompt-YesNo "Start Codex now?") {
-    Write-Step "Launching Codex"
+$codexCommand = Join-Path $visibleBinDir "winkagent.exe"
+if (Prompt-YesNo "Start WinkAgent now?") {
+    Write-Step "Launching WinkAgent"
     & $codexCommand
 }

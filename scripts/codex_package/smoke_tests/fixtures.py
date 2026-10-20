@@ -67,7 +67,7 @@ class SmokePackage:
                 tarfile.open(fileobj=source, mode="r|") as archive,
             ):
                 archive.extractall(extracted, filter="data")
-            manifest = json.loads((extracted / "codex-package.json").read_text())
+            manifest = json.loads((extracted / "winkagent-package.json").read_text())
             extracted_packages.append(
                 (
                     extracted,
@@ -140,7 +140,7 @@ def package(
 ) -> SmokePackage:
     compression = request.config.getoption("compression")
     target = request.config.getoption("package_target")
-    directory = tmp_path_factory.mktemp(f"codex-package-smoke-{compression}")
+    directory = tmp_path_factory.mktemp(f"winkagent-package-smoke-{compression}")
     if "windows" in target:
         # pytest's 0700 directories have protected ACLs, so restricted-token
         # sandboxes need read/execute access to reach the packaged binaries.

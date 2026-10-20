@@ -7,18 +7,18 @@ from pathlib import Path
 
 
 def prepare_winget_package(package: Path) -> None:
-    metadata_path = package / "codex-package.json"
+    metadata_path = package / "winkagent-package.json"
     metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
     target = metadata["target"]
     if target not in ("x86_64-pc-windows-msvc", "aarch64-pc-windows-msvc"):
         raise ValueError("WinGet requires a Windows package")
-    if metadata["entrypoint"] != "bin/codex.exe":
-        raise ValueError("WinGet requires the canonical Codex entrypoint")
-    entrypoint = f"codex-{target}.exe"
+    if metadata["entrypoint"] != "bin/winkagent.exe":
+        raise ValueError("WinGet requires the canonical WinkAgent entrypoint")
+    entrypoint = f"winkagent-{target}.exe"
     manifest_path = package / "codex-resources/voice/manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["sha256"][entrypoint] = manifest["sha256"].pop("bin/codex.exe")
-    (package / "bin/codex.exe").rename(package / entrypoint)
+    manifest["sha256"][entrypoint] = manifest["sha256"].pop("bin/winkagent.exe")
+    (package / "bin/winkagent.exe").rename(package / entrypoint)
     (package / "bin/codex-code-mode-host.exe").rename(
         package / "codex-code-mode-host.exe"
     )

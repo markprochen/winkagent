@@ -83,7 +83,7 @@ def build_package_dir(
         "resourcesDir": "codex-resources",
         "pathDir": "codex-path",
     }
-    write_json(package_dir / "codex-package.json", metadata)
+    write_json(package_dir / "winkagent-package.json", metadata)
 
 
 def validate_package_dir(
@@ -101,9 +101,9 @@ def validate_package_dir(
         if not path.is_dir():
             raise RuntimeError(f"Missing package directory: {relative_dir}")
 
-    metadata_path = package_dir / "codex-package.json"
+    metadata_path = package_dir / "winkagent-package.json"
     if not metadata_path.is_file():
-        raise RuntimeError("Missing package metadata: codex-package.json")
+        raise RuntimeError("Missing package metadata: winkagent-package.json")
 
     with open(metadata_path, encoding="utf-8") as fh:
         metadata = json.load(fh)

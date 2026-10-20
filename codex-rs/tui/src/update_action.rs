@@ -10,15 +10,15 @@ use codex_install_context::StandalonePlatform;
 pub enum UpdateAction {
     /// Replace the local daemon after restoring the terminal.
     Daemon(DaemonUpdateSource),
-    /// Update via `npm install -g @openai/codex@latest`.
+    /// Update via `npm install -g winkagent@latest`.
     NpmGlobalLatest,
-    /// Update via `bun install -g @openai/codex@latest`.
+    /// Update via `bun install -g winkagent@latest`.
     BunGlobalLatest,
-    /// Update via `vp install -g @openai/codex@latest`.
+    /// Update via `vp install -g winkagent@latest`.
     VitePlusGlobalLatest,
-    /// Update via `pnpm add -g @openai/codex@latest`.
+    /// Update via `pnpm add -g winkagent@latest`.
     PnpmGlobalLatest,
-    /// Update via `brew upgrade codex`.
+    /// Update via `brew upgrade winkagent`.
     BrewUpgrade,
     /// Update via `curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh`.
     StandaloneUnix,
@@ -46,12 +46,12 @@ impl UpdateAction {
     /// Returns the list of command-line arguments for invoking the update.
     pub fn command_args(self) -> (&'static str, &'static [&'static str]) {
         match self {
-            UpdateAction::Daemon(source) => ("codex", source.command_args()),
-            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "@openai/codex"]),
-            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "@openai/codex"]),
-            UpdateAction::VitePlusGlobalLatest => ("vp", &["install", "-g", "@openai/codex"]),
-            UpdateAction::PnpmGlobalLatest => ("pnpm", &["add", "-g", "@openai/codex"]),
-            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "codex"]),
+            UpdateAction::Daemon(source) => ("winkagent", source.command_args()),
+            UpdateAction::NpmGlobalLatest => ("npm", &["install", "-g", "winkagent"]),
+            UpdateAction::BunGlobalLatest => ("bun", &["install", "-g", "winkagent"]),
+            UpdateAction::VitePlusGlobalLatest => ("vp", &["install", "-g", "winkagent"]),
+            UpdateAction::PnpmGlobalLatest => ("pnpm", &["add", "-g", "winkagent"]),
+            UpdateAction::BrewUpgrade => ("brew", &["upgrade", "--cask", "winkagent"]),
             UpdateAction::StandaloneUnix => (
                 "sh",
                 &[

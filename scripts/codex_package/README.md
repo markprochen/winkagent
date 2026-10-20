@@ -1,4 +1,4 @@
-# Codex package builder
+# WinkAgent package builder
 
 This package contains the implementation behind `scripts/build_codex_package.py`.
 The top-level script is the stable executable entry point; these modules keep the
@@ -7,16 +7,16 @@ package-building logic split by responsibility.
 Run the builder through `just`:
 
 ```bash
-just assemble-codex-package --help
-just assemble-codex-package --variant codex-app-server
-just assemble-codex-package --target x86_64-unknown-linux-gnu
+just assemble-winkagent-package --help
+just assemble-winkagent-package --variant codex-app-server
+just assemble-winkagent-package --target x86_64-unknown-linux-gnu
 ```
 
-The builder creates a canonical Codex package directory:
+The builder creates a canonical WinkAgent package directory:
 
 ```text
 .
-├── codex-package.json
+├── winkagent-package.json
 ├── bin
 │   ├── <entrypoint>[.exe]
 │   └── codex-code-mode-host[.exe]
@@ -38,8 +38,8 @@ artifacts; pass a GNU Linux target explicitly for native glibc local builds. If
 prints its path after the package is built.
 
 The `--variant` flag selects the package entrypoint. Supported variants are
-`codex` and `codex-app-server`. The `--package-version` flag sets the version in
-`codex-package.json`; it defaults to `[workspace.package].version` in
+`winkagent` and `codex-app-server`. The `--package-version` flag sets the version in
+`winkagent-package.json`; it defaults to `[workspace.package].version` in
 `codex-rs/Cargo.toml`.
 
 ## Source-built artifacts
@@ -96,6 +96,6 @@ overrides remain authoritative when both variables are already set. Set
 
 `rg` is not built from this repository, so the builder fetches it from the
 DotSlash manifest at `scripts/codex_package/rg`. Downloaded archives are cached
-under `$TMPDIR/codex-package/<target>-rg` and are reused only after the recorded
+under `$TMPDIR/winkagent-package/<target>-rg` and are reused only after the recorded
 size and SHA-256 digest have been verified. Pass `--rg-bin` to use a local
 ripgrep executable instead.

@@ -50,6 +50,15 @@ class RebrandTests(unittest.TestCase):
         self.assertIn('"WinkAgent".bold()', welcome_source)
         self.assertIn('"Welcome to ".into()', welcome_source)
 
+    def test_release_variant_uses_winkagent(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        targets = (
+            repo_root / "scripts" / "codex_package" / "targets.py"
+        ).read_text(encoding="utf-8")
+        self.assertIn('"winkagent": PackageVariant(', targets)
+        self.assertIn('cargo_bin="winkagent"', targets)
+        self.assertIn('executable_stem="winkagent"', targets)
+
 
 if __name__ == "__main__":
     unittest.main()

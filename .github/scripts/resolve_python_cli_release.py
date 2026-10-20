@@ -89,7 +89,7 @@ def resolve_release(
             "win_arm64",
         )
     } | {
-        f"codex-package-{arch}-unknown-linux-musl.tar.gz"
+        f"winkagent-package-{arch}-unknown-linux-musl.tar.gz"
         for arch in ("aarch64", "x86_64")
     }
     available_assets = {

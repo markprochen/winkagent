@@ -43,8 +43,8 @@ class ResolvePythonCliReleaseTest(unittest.TestCase):
                 "openai_codex_cli_bin-1.2.3-py3-none-manylinux_2_17_x86_64.whl",
                 "openai_codex_cli_bin-1.2.3-py3-none-win_amd64.whl",
                 "openai_codex_cli_bin-1.2.3-py3-none-win_arm64.whl",
-                "codex-package-aarch64-unknown-linux-musl.tar.gz",
-                "codex-package-x86_64-unknown-linux-musl.tar.gz",
+                "winkagent-package-aarch64-unknown-linux-musl.tar.gz",
+                "winkagent-package-x86_64-unknown-linux-musl.tar.gz",
             ]
         ]
         self.expected = {

@@ -148,15 +148,15 @@ class ProvisionedCliTests(ProvisioningTestCase):
                 "variant": "codex",
                 "layoutVersion": 1,
                 "target": "aarch64-apple-darwin",
-                "entrypoint": "bin/codex",
+                "entrypoint": "bin/winkagent",
             }
-            for relative in ("bin/codex", *bundle.HELPERS):
+            for relative in ("bin/winkagent", *bundle.HELPERS):
                 path = package / relative
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text('#!/bin/sh\nprintf "%s\\n" "$@"\nexit 23\n')
                 path.chmod(0o755)
-            (package / "codex-package.json").write_text(json.dumps(metadata))
-            original_binary = (package / "bin/codex").read_bytes()
+            (package / "winkagent-package.json").write_text(json.dumps(metadata))
+            original_binary = (package / "bin/winkagent").read_bytes()
             bundle.prepare(package, root / "reports", self.configuration)
             with self.assertRaises(FileExistsError):
                 bundle.prepare(package, root / "reports", self.configuration)
@@ -168,7 +168,7 @@ class ProvisionedCliTests(ProvisioningTestCase):
                 (package / bundle.EXECUTABLE).read_bytes(), original_binary
             )
             self.assertEqual(
-                json.loads((package / "codex-package.json").read_text()), metadata
+                json.loads((package / "winkagent-package.json").read_text()), metadata
             )
 
             archive_path = root / "package.tar.gz"
@@ -183,12 +183,12 @@ class ProvisionedCliTests(ProvisioningTestCase):
             copied = root / "copied package"
             shutil.copytree(relocated, copied)
             link = root / "installed codex"
-            link.symlink_to(Path("copied package/bin/codex"))
+            link.symlink_to(Path("copied package/bin/winkagent"))
             absolute_link = root / "absolute codex"
             absolute_link.symlink_to(link)
             for entry in (
-                relocated / "bin/codex",
-                copied / "bin/codex",
+                relocated / "bin/winkagent",
+                copied / "bin/winkagent",
                 link,
                 absolute_link,
             ):

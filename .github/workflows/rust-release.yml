@@ -96,7 +96,7 @@ jobs:
             target: aarch64-apple-darwin
             bundle: primary
             artifact_name: aarch64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             build_dmg: "true"
           - runner: macos-15-xlarge
             target: aarch64-apple-darwin
@@ -108,7 +108,7 @@ jobs:
             target: x86_64-apple-darwin
             bundle: primary
             artifact_name: x86_64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             build_dmg: "true"
           - runner: macos-15-xlarge
             target: x86_64-apple-darwin
@@ -121,7 +121,7 @@ jobs:
             target: x86_64-unknown-linux-musl
             bundle: primary
             artifact_name: x86_64-unknown-linux-musl
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy bwrap"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy bwrap"
             build_dmg: "false"
           - runner: ${{ github.event.repository.name }}-linux-x64-xl
             target: x86_64-unknown-linux-musl
@@ -133,7 +133,7 @@ jobs:
             target: aarch64-unknown-linux-musl
             bundle: primary
             artifact_name: aarch64-unknown-linux-musl
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy bwrap"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy bwrap"
             build_dmg: "false"
           - runner: ${{ github.event.repository.name }}-linux-arm64
             target: aarch64-unknown-linux-musl
@@ -344,7 +344,7 @@ jobs:
           mkdir -p "$output"
           python3 third_party/voice/release_runtime.py stage \
             --target "$voice_target" --source "$source" --output "$output/runtime"
-          cp bazel-bin/codex-rs/voice-host/codex-voice-host "$output/codex-voice-host"
+          cp bazel-bin/winkagent-rs/voice-host/codex-voice-host "$output/codex-voice-host"
           chmod 0755 "$output/codex-voice-host"
           python3 third_party/voice/release_runtime.py seal \
             --target "$voice_target" --output "$output/runtime"
@@ -427,7 +427,7 @@ jobs:
             voice_args+=(--voice-release-dir "${RUNNER_TEMP}/signed-voice/${TARGET}")
             voice_args+=(--release-version "${GITHUB_REF_NAME#rust-v}")
           fi
-          bash "${GITHUB_WORKSPACE}/.github/scripts/build-codex-package-archive.sh" \
+          bash "${GITHUB_WORKSPACE}/.github/scripts/build-winkagent-package-archive.sh" \
             --target "$TARGET" \
             --bundle "$BUNDLE" \
             --entrypoint-dir "target/${TARGET}/release" \
@@ -440,7 +440,7 @@ jobs:
         with:
           target: ${{ matrix.target }}
           artifacts-dir: ${{ github.workspace }}/codex-rs/dist/${{ matrix.target }}
-          binaries: codex-package-${{ matrix.target }}.tar.gz codex-package-${{ matrix.target }}.tar.zst
+          binaries: winkagent-package-${{ matrix.target }}.tar.gz winkagent-package-${{ matrix.target }}.tar.zst
 
       - name: Build Python runtime wheel
         if: ${{ matrix.build-system == 'cargo' && matrix.bundle == 'primary' && runner.os != 'macOS' }}
@@ -476,12 +476,12 @@ jobs:
           # GNU voice libraries belong in the signed release package archives,
           # but their minimum glibc version is not covered by this wheel tag.
           wheel_archives="${RUNNER_TEMP}/voice-free-wheel/${{ matrix.target }}"
-          bash "${GITHUB_WORKSPACE}/.github/scripts/build-codex-package-archive.sh" \
+          bash "${GITHUB_WORKSPACE}/.github/scripts/build-winkagent-package-archive.sh" \
             --target "${{ matrix.target }}" \
             --bundle primary \
             --entrypoint-dir "target/${{ matrix.target }}/release" \
             --archive-dir "$wheel_archives"
-          wheel_archive="${wheel_archives}/codex-package-${{ matrix.target }}.tar.gz"
+          wheel_archive="${wheel_archives}/winkagent-package-${{ matrix.target }}.tar.gz"
           python3 - "$wheel_archive" <<'PY'
           import sys
           import tarfile
@@ -623,7 +623,7 @@ jobs:
           cp -R "$runtime" "voice-unsigned/${TARGET}/runtime"
           # GNU tar extraction and signing need writable copies of Bazel outputs.
           chmod -R u+w "voice-unsigned/${TARGET}/runtime"
-          cp bazel-bin/codex-rs/voice-host/codex-voice-host "voice-unsigned/${TARGET}/codex-voice-host"
+          cp bazel-bin/winkagent-rs/voice-host/codex-voice-host "voice-unsigned/${TARGET}/codex-voice-host"
           tar -C "voice-unsigned/${TARGET}" -czf "voice-unsigned-${TARGET}.tar.gz" runtime codex-voice-host
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
@@ -660,7 +660,7 @@ jobs:
           - target: aarch64-apple-darwin
             bundle: primary
             artifact_name: aarch64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
           - target: aarch64-apple-darwin
             bundle: app-server
             artifact_name: aarch64-apple-darwin-app-server
@@ -668,7 +668,7 @@ jobs:
           - target: x86_64-apple-darwin
             bundle: primary
             artifact_name: x86_64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
           - target: x86_64-apple-darwin
             bundle: app-server
             artifact_name: x86_64-apple-darwin-app-server
@@ -905,7 +905,7 @@ jobs:
           - target: aarch64-apple-darwin
             bundle: primary
             artifact_name: aarch64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             build_dmg: "true"
           - target: aarch64-apple-darwin
             bundle: app-server
@@ -915,7 +915,7 @@ jobs:
           - target: x86_64-apple-darwin
             bundle: primary
             artifact_name: x86_64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             build_dmg: "true"
           - target: x86_64-apple-darwin
             bundle: app-server
@@ -1019,7 +1019,7 @@ jobs:
             voice_args+=(--voice-release-dir "${RUNNER_TEMP}/signed-voice/${TARGET}")
             voice_args+=(--release-version "${GITHUB_REF_NAME#rust-v}")
           fi
-          bash "${GITHUB_WORKSPACE}/.github/scripts/build-codex-package-archive.sh" \
+          bash "${GITHUB_WORKSPACE}/.github/scripts/build-winkagent-package-archive.sh" \
             --target "$TARGET" \
             --bundle "$BUNDLE" \
             --entrypoint-dir "target/${TARGET}/release" \
@@ -1054,10 +1054,10 @@ jobs:
           if [[ "${{ matrix.bundle }}" == "primary" ]]; then
             # Keep the root-level invocation, but resolve it into the canonical
             # package layout so InstallContext finds its adjacent voice runtime.
-            package="${RUNNER_TEMP}/codex-package-voice-${target}"
+            package="${RUNNER_TEMP}/winkagent-package-voice-${target}"
             ditto "$package" "$dmg_root"
             rm "${dmg_root}/codex"
-            ln -s bin/codex "${dmg_root}/codex"
+            ln -s bin/winkagent "${dmg_root}/codex"
           fi
 
           rm -f "$dmg_path"
@@ -1107,13 +1107,13 @@ jobs:
           # currently targets macOS 14, so keep it in the release archives and
           # DMG but leave this older-OS-compatible wheel unchanged.
           wheel_archives="${RUNNER_TEMP}/voice-free-wheel/${{ matrix.target }}"
-          bash "${GITHUB_WORKSPACE}/.github/scripts/build-codex-package-archive.sh" \
+          bash "${GITHUB_WORKSPACE}/.github/scripts/build-winkagent-package-archive.sh" \
             --target "${{ matrix.target }}" \
             --bundle primary \
             --entrypoint-dir "target/${{ matrix.target }}/release" \
             --archive-dir "$wheel_archives" \
             --rg-bin "signed-resources/${{ matrix.target }}/rg"
-          wheel_archive="${wheel_archives}/codex-package-${{ matrix.target }}.tar.gz"
+          wheel_archive="${wheel_archives}/winkagent-package-${{ matrix.target }}.tar.gz"
           python3 - "$wheel_archive" <<'PY'
           import sys
           import tarfile
@@ -1294,7 +1294,7 @@ jobs:
           - target: aarch64-apple-darwin
             bundle: primary
             artifact_name: aarch64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             verify_dmg: "true"
           - target: aarch64-apple-darwin
             bundle: app-server
@@ -1304,7 +1304,7 @@ jobs:
           - target: x86_64-apple-darwin
             bundle: primary
             artifact_name: x86_64-apple-darwin
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             verify_dmg: "true"
           - target: x86_64-apple-darwin
             bundle: app-server
@@ -1399,8 +1399,8 @@ jobs:
 
           case "${{ matrix.bundle }}" in
             primary)
-              package_stem="codex-package"
-              package_entrypoint="codex"
+              package_stem="winkagent-package"
+              package_entrypoint="winkagent"
               ;;
             app-server)
               package_stem="codex-app-server-package"
@@ -1453,7 +1453,7 @@ jobs:
           for relative, expected in manifest["sha256"].items():
               assert digest(package / relative) == expected, relative
           PY
-            helper="${voice}/bin/codex-voice-host"
+            helper="${voice}/bin/winkagent-voice-host"
             [[ "$("$helper" --build-commit)" == "$VOICE_BUILD_COMMIT" ]]
             while IFS= read -r -d '' library; do
               lipo "$library" -verify_arch "$expected_arch"
@@ -1490,12 +1490,12 @@ jobs:
           done
 
           if [[ "${{ matrix.bundle }}" == "primary" ]]; then
-            [[ "$(readlink "${mount_dir}/codex")" == "bin/codex" ]]
-            cmp "${mount_dir}/codex-package.json" "${package_dir}/codex-package.json"
+            [[ "$(readlink "${mount_dir}/codex")" == "bin/winkagent" ]]
+            cmp "${mount_dir}/winkagent-package.json" "${package_dir}/winkagent-package.json"
             cmp "${mount_dir}/codex-resources/voice/manifest.json" \
               "${package_dir}/codex-resources/voice/manifest.json"
-            cmp "${mount_dir}/codex-resources/voice/bin/codex-voice-host" \
-              "${package_dir}/codex-resources/voice/bin/codex-voice-host"
+            cmp "${mount_dir}/codex-resources/voice/bin/winkagent-voice-host" \
+              "${package_dir}/codex-resources/voice/bin/winkagent-voice-host"
           fi
 
           cleanup_mount
@@ -1685,10 +1685,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          manifest="dist/codex-package_SHA256SUMS"
+          manifest="dist/winkagent-package_SHA256SUMS"
           tmp_manifest="$(mktemp)"
           find dist -type f \
-            \( -name 'codex-package-*.tar.gz' -o -name 'codex-app-server-package-*.tar.gz' -o -name 'codex-provisioned-package-*.tar.gz' \) \
+            \( -name 'winkagent-package-*.tar.gz' -o -name 'codex-app-server-package-*.tar.gz' -o -name 'codex-provisioned-package-*.tar.gz' \) \
             -print |
             sort |
             while IFS= read -r archive; do
@@ -1903,10 +1903,10 @@ jobs:
           tag="$RELEASE_TAG"
           mkdir -p dist/npm
           patterns=(
-            "codex-npm-${version}.tgz"
-            "codex-npm-linux-*-${version}.tgz"
-            "codex-npm-darwin-*-${version}.tgz"
-            "codex-npm-win32-*-${version}.tgz"
+            "winkagent-npm-${version}.tgz"
+            "winkagent-npm-linux-*-${version}.tgz"
+            "winkagent-npm-darwin-*-${version}.tgz"
+            "winkagent-npm-win32-*-${version}.tgz"
             "codex-responses-api-proxy-npm-${version}.tgz"
             "codex-sdk-npm-${version}.tgz"
           )
@@ -1932,19 +1932,19 @@ jobs:
             prefix="${NPM_TAG}-"
           fi
 
-          root_tarball="dist/npm/codex-npm-${VERSION}.tgz"
+          root_tarball="dist/npm/winkagent-npm-${VERSION}.tgz"
           sdk_tarball="dist/npm/codex-sdk-npm-${VERSION}.tgz"
           # Keep this list in sync with CODEX_PLATFORM_PACKAGES in
           # codex-cli/scripts/build_npm_package.py. The root wrapper advances
-          # @openai/codex@latest as soon as it publishes, so every platform
+          # winkagent@latest as soon as it publishes, so every platform
           # package it aliases must already exist in the registry first.
           platform_tarballs=(
-            "dist/npm/codex-npm-linux-x64-${VERSION}.tgz"
-            "dist/npm/codex-npm-linux-arm64-${VERSION}.tgz"
-            "dist/npm/codex-npm-darwin-x64-${VERSION}.tgz"
-            "dist/npm/codex-npm-darwin-arm64-${VERSION}.tgz"
-            "dist/npm/codex-npm-win32-x64-${VERSION}.tgz"
-            "dist/npm/codex-npm-win32-arm64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-linux-x64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-linux-arm64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-darwin-x64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-darwin-arm64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-win32-x64-${VERSION}.tgz"
+            "dist/npm/winkagent-npm-win32-arm64-${VERSION}.tgz"
           )
 
           for required_tarball in "${platform_tarballs[@]}" "${root_tarball}"; do
@@ -1976,7 +1976,7 @@ jobs:
           done
 
           # npm returns HTTP 409 when concurrent publishes update the same
-          # packument. Every platform tarball is a version of @openai/codex,
+          # packument. Every platform tarball is a version of winkagent,
           # so publish all tarballs serially.
           tarballs=(
             "${platform_tarballs[@]}"
@@ -1993,12 +1993,12 @@ jobs:
             tag=""
 
             case "${filename}" in
-              codex-npm-linux-*-"${VERSION}".tgz|codex-npm-darwin-*-"${VERSION}".tgz|codex-npm-win32-*-"${VERSION}".tgz)
-                platform="${filename#codex-npm-}"
+              winkagent-npm-linux-*-"${VERSION}".tgz|winkagent-npm-darwin-*-"${VERSION}".tgz|winkagent-npm-win32-*-"${VERSION}".tgz)
+                platform="${filename#winkagent-npm-}"
                 platform="${platform%-${VERSION}.tgz}"
                 tag="${prefix}${platform}"
                 ;;
-              codex-npm-"${VERSION}".tgz|codex-responses-api-proxy-npm-"${VERSION}".tgz|codex-sdk-npm-"${VERSION}".tgz)
+              winkagent-npm-"${VERSION}".tgz|codex-responses-api-proxy-npm-"${VERSION}".tgz|codex-sdk-npm-"${VERSION}".tgz)
                 tag="${NPM_TAG}"
                 ;;
               *)

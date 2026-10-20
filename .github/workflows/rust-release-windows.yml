@@ -4,7 +4,7 @@ on:
   workflow_call:
 
 env:
-  WINDOWS_BINARIES: "codex codex-code-mode-host codex-responses-api-proxy codex-windows-sandbox-setup codex-windows-sandbox-service codex-command-runner codex-app-server"
+  WINDOWS_BINARIES: "winkagent codex-code-mode-host codex-responses-api-proxy codex-windows-sandbox-setup codex-windows-sandbox-service codex-command-runner codex-app-server"
 
 jobs:
   build-windows-binaries:
@@ -39,14 +39,14 @@ jobs:
           - runner: windows-x64
             target: x86_64-pc-windows-msvc
             bundle: primary
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             runs_on:
               group: ${{ github.event.repository.name }}-runners
               labels: ${{ github.event.repository.name }}-windows-x64
           - runner: windows-arm64
             target: aarch64-pc-windows-msvc
             bundle: primary
-            binaries: "codex codex-code-mode-host codex-responses-api-proxy"
+            binaries: "winkagent codex-code-mode-host codex-responses-api-proxy"
             runs_on:
               group: ${{ github.event.repository.name }}-runners
               labels: ${{ github.event.repository.name }}-windows-arm64
@@ -296,7 +296,7 @@ jobs:
           output="voice-unsigned/${TARGET}"
           mkdir -p "$output"
           cp -R "$runtime" "$output/runtime"
-          cp bazel-bin/codex-rs/voice-host/codex-voice-host.exe "$output/codex-voice-host.exe"
+          cp bazel-bin/winkagent-rs/voice-host/codex-voice-host.exe "$output/codex-voice-host.exe"
           chmod -R u+w "$output"
           tar -C "$output" -czf "voice-unsigned-${TARGET}.tar.gz" runtime codex-voice-host.exe
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
@@ -537,7 +537,7 @@ jobs:
         run: |
           set -euo pipefail
           target="${{ matrix.target }}"
-          archive_script="${GITHUB_WORKSPACE}/.github/scripts/build-codex-package-archive.sh"
+          archive_script="${GITHUB_WORKSPACE}/.github/scripts/build-winkagent-package-archive.sh"
           voice_args=(--voice-release-dir "$VOICE_RELEASE_DIR")
           voice_args+=(--release-version "${GITHUB_REF_NAME#rust-v}")
           bash "$archive_script" \
@@ -555,10 +555,10 @@ jobs:
           $target = "${{ matrix.target }}"
           $package = Join-Path $env:RUNNER_TEMP "verify-voice-archive-$target"
           New-Item -ItemType Directory -Path $package | Out-Null
-          tar -xzf "dist/$target/codex-package-$target.tar.gz" -C $package
+          tar -xzf "dist/$target/winkagent-package-$target.tar.gz" -C $package
           if ($LASTEXITCODE -ne 0) { throw "Cannot extract the final Windows package" }
           $voice = Join-Path $package 'codex-resources/voice'
-          $helper = Join-Path $voice 'bin/codex-voice-host.exe'
+          $helper = Join-Path $voice 'bin/winkagent-voice-host.exe'
           if (-not (Test-Path $helper) -or -not (Test-Path (Join-Path $voice 'bin/gstreamer-1.0-0.dll'))) {
             throw 'Signed Windows voice files are missing from the canonical package'
           }
@@ -591,7 +591,7 @@ jobs:
 
           # The wheel's Windows support floor predates the native voice
           # runtime's verified device/VC++ prerequisites. Keep it voice-free.
-          wheel_package="${RUNNER_TEMP}/codex-package-${{ matrix.target }}"
+          wheel_package="${RUNNER_TEMP}/winkagent-package-${{ matrix.target }}"
           python - "$wheel_package" <<'PY'
           import sys
           from pathlib import Path
@@ -662,7 +662,7 @@ jobs:
               # Preserve WinGet executable paths while including the signed
               # runtime, resources, and package metadata from the canonical tar.
               bundle_dir="$(mktemp -d)"
-              tar -xzf "$dest/codex-package-${target}.tar.gz" -C "$bundle_dir"
+              tar -xzf "$dest/winkagent-package-${target}.tar.gz" -C "$bundle_dir"
               python "${GITHUB_WORKSPACE}/scripts/build_winget_package.py" "$(cygpath -w "$bundle_dir")"
               (cd "$bundle_dir" && 7z a "$repo_root/$dest/${base}.zip" .)
               rm -rf "$bundle_dir"

@@ -10,7 +10,7 @@ _repo_root = os.environ.get("CODEX_REPO_ROOT")
 if _repo_root is None:
     raise RuntimeError(
         "CODEX_REPO_ROOT must point to the repository root; "
-        "run `just assemble-codex-package` to set it automatically"
+        "run `just assemble-winkagent-package` to set it automatically"
     )
 REPO_ROOT = Path(_repo_root)
 
@@ -52,10 +52,10 @@ class PackageInputs:
 
 
 PACKAGE_VARIANTS: dict[str, PackageVariant] = {
-    "codex": PackageVariant(
-        name="codex",
-        cargo_bin="codex",
-        executable_stem="codex",
+    "winkagent": PackageVariant(
+        name="winkagent",
+        cargo_bin="winkagent",
+        executable_stem="winkagent",
     ),
     "codex-app-server": PackageVariant(
         name="codex-app-server",

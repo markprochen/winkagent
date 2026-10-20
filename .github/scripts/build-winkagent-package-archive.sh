@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: build-codex-package-archive.sh \
+Usage: build-winkagent-package-archive.sh \
   --target <rust-target> \
   --bundle <primary|app-server> \
   --entrypoint-dir <dir> \
@@ -114,9 +114,9 @@ fi
 
 case "$bundle" in
   primary)
-    variant="codex"
-    entrypoint="codex"
-    archive_stem="codex-package"
+    variant="winkagent"
+    entrypoint="winkagent"
+    archive_stem="winkagent-package"
     ;;
   app-server)
     variant="codex-app-server"
@@ -124,7 +124,7 @@ case "$bundle" in
     archive_stem="codex-app-server-package"
     ;;
   *)
-    echo "No Codex package variant for bundle: $bundle" >&2
+    echo "No WinkAgent package variant for bundle: $bundle" >&2
     exit 1
     ;;
 esac

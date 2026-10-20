@@ -47,4 +47,4 @@ runs:
         RELEASE_DIR: ${{ inputs.release-dir }}
       run: |
         mkdir -p "$RELEASE_DIR"
-        tar -xzf "bazel-bin/codex-rs/runtime_package_$BUNDLE.tar.gz" -C "$RELEASE_DIR"
+        tar -xzf "bazel-bin/winkagent-rs/runtime_package_$BUNDLE.tar.gz" -C "$RELEASE_DIR"

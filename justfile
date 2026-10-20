@@ -36,15 +36,15 @@ file-search *args:
 code-mode-host *args:
     cargo run --bin codex-code-mode-host -- {args}
 
-# Assemble a local Codex package.
+# Assemble a local WinkAgent package.
 [no-cd]
-assemble-codex-package *args:
+assemble-winkagent-package *args:
     {{ python }} {{ justfile_directory() }}/scripts/build_codex_package.py {args}
 
 # Build the CLI and run the app-server test client
 app-server-test-client *args:
-    cargo build -p codex-cli
-    cargo run -p codex-app-server-test-client -- --codex-bin ./target/debug/codex {args}
+    cargo build -p winkagent-cli --bin winkagent
+    cargo run -p codex-app-server-test-client -- --codex-bin ./target/debug/winkagent {args}
 
 # Format the justfile, Rust, Bazel/Starlark, Python SDK code, and Python scripts.
 fmt:

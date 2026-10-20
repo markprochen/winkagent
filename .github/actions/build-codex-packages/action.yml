@@ -1,4 +1,4 @@
-name: build-codex-packages
+name: build-winkagent-packages
 description: Build and smoke-test unsigned Codex CLI and app-server release packages.
 inputs:
   target:
@@ -23,7 +23,7 @@ runs:
       shell: bash
       working-directory: codex-rs
       env:
-        BASE_BINARIES: "codex codex-app-server codex-code-mode-host"
+        BASE_BINARIES: "winkagent codex-app-server codex-code-mode-host"
         WINDOWS_ONLY_BINARIES: "codex-command-runner codex-windows-sandbox-setup"
         BUILD_MODE: ${{ inputs.build-mode }}
         BUILD_SYSTEM: ${{ inputs.build-system }}
@@ -154,11 +154,11 @@ runs:
 
         python3 "${PACKAGE_SOURCE_ROOT}/scripts/build_codex_package.py" \
           "${package_args[@]}" \
-          --variant codex \
-          --entrypoint-bin "${release_dir}/codex${exe_suffix}" \
-          --package-dir "${RUNNER_TEMP}/codex-package-${target}" \
-          --archive-output "${archive_dir}/codex-package-${target}.tar.gz" \
-          --archive-output "${archive_dir}/codex-package-${target}.tar.zst"
+          --variant winkagent \
+          --entrypoint-bin "${release_dir}/winkagent${exe_suffix}" \
+          --package-dir "${RUNNER_TEMP}/winkagent-package-${target}" \
+          --archive-output "${archive_dir}/winkagent-package-${target}.tar.gz" \
+          --archive-output "${archive_dir}/winkagent-package-${target}.tar.zst"
 
         python3 "${PACKAGE_SOURCE_ROOT}/scripts/build_codex_package.py" \
           "${package_args[@]}" \
@@ -196,12 +196,12 @@ runs:
 
         uv run --frozen pytest "${pytest_args[@]}" \
           --compression gzip \
-          --cli-archive "${archive_dir}/codex-package-${target}.tar.gz" \
+          --cli-archive "${archive_dir}/winkagent-package-${target}.tar.gz" \
           --app-server-archive "${archive_dir}/codex-app-server-package-${target}.tar.gz" \
           test_codex_package.py
 
         uv run --frozen pytest "${pytest_args[@]}" \
           --compression zstd \
-          --cli-archive "${archive_dir}/codex-package-${target}.tar.zst" \
+          --cli-archive "${archive_dir}/winkagent-package-${target}.tar.zst" \
           --app-server-archive "${archive_dir}/codex-app-server-package-${target}.tar.zst" \
           test_codex_package.py

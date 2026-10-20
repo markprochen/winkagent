@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage one or more Codex npm packages for release."""
+"""Stage one or more WinkAgent npm packages for release."""
 
 import argparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -38,7 +38,7 @@ PACKAGE_NATIVE_COMPONENTS = getattr(_BUILD_MODULE, "PACKAGE_NATIVE_COMPONENTS", 
 PACKAGE_EXPANSIONS = getattr(_BUILD_MODULE, "PACKAGE_EXPANSIONS", {})
 CODEX_PLATFORM_PACKAGES = getattr(_BUILD_MODULE, "CODEX_PLATFORM_PACKAGES", {})
 CODEX_PACKAGE_COMPONENT = getattr(
-    _BUILD_MODULE, "CODEX_PACKAGE_COMPONENT", "codex-package"
+    _BUILD_MODULE, "CODEX_PACKAGE_COMPONENT", "winkagent-package"
 )
 
 
@@ -334,7 +334,7 @@ def install_codex_package_archives(
         return
 
     print(
-        "Installing Codex package archives for targets: " + ", ".join(targets),
+        "Installing WinkAgent package archives for targets: " + ", ".join(targets),
         flush=True,
     )
     max_workers = min(len(targets), max(1, (os.cpu_count() or 1)))
@@ -359,7 +359,7 @@ def install_single_codex_package_archive(
     target: str,
 ) -> Path:
     artifact_subdir = artifact_dir_for_target(artifacts_dir, target)
-    archive_path = artifact_subdir / f"codex-package-{target}.tar.gz"
+    archive_path = artifact_subdir / f"winkagent-package-{target}.tar.gz"
     if not archive_path.exists():
         raise FileNotFoundError(f"Expected package archive not found: {archive_path}")
 
@@ -489,8 +489,8 @@ def run_command(cmd: list[str]) -> None:
 
 def tarball_name_for_package(package: str, version: str) -> str:
     if package in CODEX_PLATFORM_PACKAGES:
-        platform = package.removeprefix("codex-")
-        return f"codex-npm-{platform}-{version}.tgz"
+        platform = package.removeprefix("winkagent-")
+        return f"winkagent-npm-{platform}-{version}.tgz"
     return f"{package}-npm-{version}.tgz"
 
 

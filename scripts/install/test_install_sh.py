@@ -48,7 +48,7 @@ class InstallShTest(unittest.TestCase):
                 "https://api.github.com/repos/openai/codex/releases/tags/"
                 f"rust-v{VERSION}",
                 "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -64,7 +64,7 @@ class InstallShTest(unittest.TestCase):
                 "https://api.github.com/repos/openai/codex/releases/tags/"
                 f"rust-v{version}",
                 "https://github.com/openai/codex/releases/download/"
-                f"rust-v{version}/codex-package_SHA256SUMS",
+                f"rust-v{version}/winkagent-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {version}", result.stdout)
@@ -78,7 +78,7 @@ class InstallShTest(unittest.TestCase):
             [
                 "https://api.github.com/repos/openai/codex/releases/latest",
                 "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -94,7 +94,7 @@ class InstallShTest(unittest.TestCase):
             [
                 "https://api.github.com/repos/openai/codex/releases/latest",
                 "https://github.com/openai/codex/releases/download/"
-                f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
             ],
         )
         self.assertIn(f"Resolved version: {VERSION}", result.stdout)
@@ -106,8 +106,8 @@ class InstallShTest(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(len(requests), 2)
-        self.assertIn("/codex-npm-", requests[1])
-        self.assertNotIn("codex-package_SHA256SUMS", requests[1])
+        self.assertIn("/winkagent-npm-", requests[1])
+        self.assertNotIn("winkagent-package_SHA256SUMS", requests[1])
 
     def test_macos_install_exposes_code_mode_host_beside_codex(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -126,7 +126,7 @@ class InstallShTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             install_bin = root / "install-bin"
             current = root / "codex-home" / "packages" / "standalone" / "current"
-            codex_path = install_bin / "codex"
+            codex_path = install_bin / "winkagent"
             host_path = install_bin / "codex-code-mode-host"
             self.assertEqual(os.readlink(codex_path), str(current / "bin" / "codex"))
             self.assertEqual(
@@ -155,8 +155,8 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
 
@@ -172,7 +172,7 @@ class InstallShTest(unittest.TestCase):
             )
             pinned, _ = run_installer_in(root, VERSION, **options)
             self.assertEqual(pinned.returncode, 0, pinned.stderr)
-            visible = root / "install-bin/codex"
+            visible = root / "install-bin/winkagent"
             original = visible.resolve()
             pending = visible.with_name(".codex.12345")
             pending.symlink_to(original)
@@ -219,7 +219,7 @@ class InstallShTest(unittest.TestCase):
             self.assertEqual((daemon / "current").resolve(), local)
             self.assertFalse(marker.exists())
 
-            binary = daemon / "releases" / release_name / "bin/codex"
+            binary = daemon / "releases" / release_name / "bin/winkagent"
             contents = binary.read_text()
             binary.write_text(
                 '#!/bin/sh\n[ "$1" = "--version" ] || exit 2\n'
@@ -309,7 +309,7 @@ class InstallShTest(unittest.TestCase):
 
             managed = (
                 root
-                / f"codex-home/packages/standalone/releases/{release_name}/bin/codex"
+                / f"codex-home/packages/standalone/releases/{release_name}/bin/winkagent"
             )
             managed.unlink()
             guarded, _ = run_installer_in(
@@ -393,7 +393,7 @@ class InstallShTest(unittest.TestCase):
 
                     unowned = releases / f"0.139.0-{target}"
                     unowned.mkdir()
-                    (unowned / "codex-package.json").write_text("{}")
+                    (unowned / "winkagent-package.json").write_text("{}")
                     retired = releases / ".retired.old-attempt"
                     retired.mkdir()
                     (retired / "leave-alone").write_text("not retried")
@@ -446,7 +446,7 @@ class InstallShTest(unittest.TestCase):
                 fake_ps = root / "bin/ps"
                 foreign_uid = 0 if os.geteuid() != 0 else 501
                 try:
-                    for executable in (oldest / "bin/codex", helper):
+                    for executable in (oldest / "bin/winkagent", helper):
                         with self.subTest(foreign_executable=executable.name):
                             fake_ps.write_text(
                                 "#!/bin/sh\n"
@@ -587,11 +587,11 @@ class InstallShTest(unittest.TestCase):
                     "tag_name": f"rust-v{VERSION}",
                     "assets": [
                         {
-                            "name": "codex-package-aarch64-apple-darwin.tar.gz",
+                            "name": "winkagent-package-aarch64-apple-darwin.tar.gz",
                             "digest": "sha256:" + "a" * 64,
                         },
                         {
-                            "name": "codex-package_SHA256SUMS",
+                            "name": "winkagent-package_SHA256SUMS",
                             "digest": "sha256:" + "z" * 64,
                         },
                     ],
@@ -626,9 +626,9 @@ class InstallShTest(unittest.TestCase):
                             "https://releases.openai.com/codex/channels/latest",
                             "https://api.github.com/repos/openai/codex/releases/latest",
                             "https://github.com/openai/codex/releases/download/"
-                            f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                            f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
                             "https://github.com/openai/codex/releases/download/"
-                            f"rust-v{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                            f"rust-v{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                         ],
                     )
                     self.assertIn("falling back to GitHub Releases", result.stderr)
@@ -661,9 +661,9 @@ class InstallShTest(unittest.TestCase):
                     "https://api.github.com/repos/openai/codex/releases/tags/"
                     f"rust-v{VERSION}",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"rust-v{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn("falling back to GitHub Releases", result.stderr)
@@ -689,12 +689,12 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"rust-v{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn("retrying from GitHub Releases", result.stderr)
@@ -720,12 +720,12 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"rust-v{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn("checksum did not match expected digest", result.stderr)
@@ -737,7 +737,7 @@ class InstallShTest(unittest.TestCase):
             archive_path, checksum_path, metadata_json = create_package_release(root)
             mirror_metadata = json.loads(metadata_json)
             for release_asset in mirror_metadata["assets"]:
-                if release_asset["name"] == "codex-package_SHA256SUMS":
+                if release_asset["name"] == "winkagent-package_SHA256SUMS":
                     release_asset["digest"] = "sha256:" + "0" * 64
 
             result, requests = run_installer_in(
@@ -756,12 +756,12 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
                     "https://api.github.com/repos/openai/codex/releases/tags/"
                     f"rust-v{VERSION}",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn("checksum did not match expected digest", result.stderr)
@@ -772,12 +772,12 @@ class InstallShTest(unittest.TestCase):
             archive_path, checksum_path, metadata_json = create_package_release(root)
             mirror_checksum_path = root / "mirror-SHA256SUMS"
             mirror_checksum_path.write_text(
-                f"{'a' * 64}  codex-package-other-platform.tar.gz\n",
+                f"{'a' * 64}  winkagent-package-other-platform.tar.gz\n",
                 encoding="utf-8",
             )
             mirror_metadata = json.loads(metadata_json)
             for release_asset in mirror_metadata["assets"]:
-                if release_asset["name"] == "codex-package_SHA256SUMS":
+                if release_asset["name"] == "winkagent-package_SHA256SUMS":
                     release_asset["digest"] = (
                         "sha256:"
                         + hashlib.sha256(mirror_checksum_path.read_bytes()).hexdigest()
@@ -800,12 +800,12 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
                     "https://api.github.com/repos/openai/codex/releases/tags/"
                     f"rust-v{VERSION}",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn("retrying from GitHub Releases", result.stderr)
@@ -831,9 +831,9 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     "https://releases.openai.com/codex/channels/latest",
-                    f"https://releases.openai.com/codex/releases/{VERSION}/codex-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{VERSION}/winkagent-package_SHA256SUMS",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-package_SHA256SUMS",
+                    f"rust-v{VERSION}/winkagent-package_SHA256SUMS",
                     "https://api.github.com/repos/openai/codex/releases/tags/"
                     f"rust-v{VERSION}",
                 ],
@@ -863,8 +863,8 @@ class InstallShTest(unittest.TestCase):
                 requests,
                 [
                     f"https://releases.openai.com/codex/releases/{MISMATCH_VERSION}/release.json",
-                    f"https://releases.openai.com/codex/releases/{MISMATCH_VERSION}/codex-package_SHA256SUMS",
-                    f"https://releases.openai.com/codex/releases/{MISMATCH_VERSION}/codex-package-aarch64-apple-darwin.tar.gz",
+                    f"https://releases.openai.com/codex/releases/{MISMATCH_VERSION}/winkagent-package_SHA256SUMS",
+                    f"https://releases.openai.com/codex/releases/{MISMATCH_VERSION}/winkagent-package-aarch64-apple-darwin.tar.gz",
                 ],
             )
             self.assertIn(
@@ -896,7 +896,7 @@ class InstallShTest(unittest.TestCase):
                     "https://api.github.com/repos/openai/codex/releases/tags/"
                     f"rust-v{VERSION}",
                     "https://github.com/openai/codex/releases/download/"
-                    f"rust-v{VERSION}/codex-npm-darwin-arm64-{VERSION}.tgz",
+                    f"rust-v{VERSION}/winkagent-npm-darwin-arm64-{VERSION}.tgz",
                 ],
             )
 
@@ -995,7 +995,7 @@ def run_installer_in(
                 fi
                 printf '%s\n' "$CODEX_TEST_RELEASES_METADATA_JSON"
                 ;;
-              https://releases.openai.com/codex/releases/*/codex-package_SHA256SUMS)
+              https://releases.openai.com/codex/releases/*/winkagent-package_SHA256SUMS)
                 if [ "$CODEX_TEST_RELEASES_MODE" = "asset_fallback" ]; then
                   exit 22
                 fi
@@ -1010,7 +1010,7 @@ def run_installer_in(
                   exit 22
                 fi
                 ;;
-              https://releases.openai.com/codex/releases/*/codex-package-*.tar.gz)
+              https://releases.openai.com/codex/releases/*/winkagent-package-*.tar.gz)
                 if [ "$CODEX_TEST_RELEASES_MODE" = "asset_fallback" ]; then
                   exit 22
                 fi
@@ -1024,7 +1024,7 @@ def run_installer_in(
                   exit 22
                 fi
                 ;;
-              https://github.com/openai/codex/releases/download/*/codex-package_SHA256SUMS)
+              https://github.com/openai/codex/releases/download/*/winkagent-package_SHA256SUMS)
                 if [ "$CODEX_TEST_RELEASES_MODE" = "corrupt_checksum_and_github" ]; then
                   printf '<html>proxy error</html>\n' >"$output"
                   exit 0
@@ -1035,14 +1035,14 @@ def run_installer_in(
                   exit 22
                 fi
                 ;;
-              https://github.com/openai/codex/releases/download/*/codex-package-*.tar.gz)
+              https://github.com/openai/codex/releases/download/*/winkagent-package-*.tar.gz)
                 if [ -n "$CODEX_TEST_ARCHIVE_PATH" ]; then
                   cp "$CODEX_TEST_ARCHIVE_PATH" "$output"
                 else
                   exit 22
                 fi
                 ;;
-              https://github.com/openai/codex/releases/download/*/codex-npm-*.tgz)
+              https://github.com/openai/codex/releases/download/*/winkagent-npm-*.tgz)
                 if [ -n "$CODEX_TEST_LEGACY_ARCHIVE_PATH" ]; then
                   cp "$CODEX_TEST_LEGACY_ARCHIVE_PATH" "$output"
                 else
@@ -1165,9 +1165,9 @@ def create_package_release(
     package_dir = root / "package"
     (package_dir / "bin").mkdir(parents=True)
     (package_dir / "codex-path").mkdir()
-    (package_dir / "codex-package.json").write_text(
+    (package_dir / "winkagent-package.json").write_text(
         json.dumps(
-            {"version": binary_version, "target": target, "entrypoint": "bin/codex"}
+            {"version": binary_version, "target": target, "entrypoint": "bin/winkagent"}
         ),
         encoding="utf-8",
     )
@@ -1184,14 +1184,14 @@ def create_package_release(
         (package_dir / "codex-resources").mkdir()
         write_executable(package_dir / "codex-resources/bwrap", "#!/bin/sh\nexit 0\n")
 
-    asset = f"codex-package-{target}.tar.gz"
+    asset = f"winkagent-package-{target}.tar.gz"
     archive_path = root / asset
     with tarfile.open(archive_path, "w:gz") as archive:
         for path in package_dir.iterdir():
             archive.add(path, arcname=path.name)
 
     archive_digest = hashlib.sha256(archive_path.read_bytes()).hexdigest()
-    checksum_path = root / "codex-package_SHA256SUMS"
+    checksum_path = root / "winkagent-package_SHA256SUMS"
     checksum_path.write_text(f"{archive_digest}  {asset}\n", encoding="utf-8")
     checksum_digest = hashlib.sha256(checksum_path.read_bytes()).hexdigest()
     metadata_json = json.dumps(
@@ -1199,7 +1199,7 @@ def create_package_release(
             "assets": [
                 {"name": asset, "digest": f"sha256:{archive_digest}"},
                 {
-                    "name": "codex-package_SHA256SUMS",
+                    "name": "winkagent-package_SHA256SUMS",
                     "digest": f"sha256:{checksum_digest}",
                 },
             ],
@@ -1221,7 +1221,7 @@ def create_legacy_release(root: Path) -> tuple[Path, str]:
     )
     write_executable(vendor_dir / "path" / "rg", "#!/bin/sh\nexit 0\n")
 
-    asset = f"codex-npm-darwin-arm64-{VERSION}.tgz"
+    asset = f"winkagent-npm-darwin-arm64-{VERSION}.tgz"
     archive_path = root / asset
     with tarfile.open(archive_path, "w:gz") as archive:
         archive.add(package_dir / "package", arcname="package")
@@ -1245,7 +1245,7 @@ def write_executable(path: Path, contents: str) -> None:
 def release_metadata(*, compact: bool = False, reorder: bool = False) -> str:
     assets = [
         asset_metadata(
-            f"codex-package-{target}.tar.gz",
+            f"winkagent-package-{target}.tar.gz",
             f"sha256:{'a' * 64}",
             reorder=reorder,
         )
@@ -1258,7 +1258,7 @@ def release_metadata(*, compact: bool = False, reorder: bool = False) -> str:
     ]
     assets.append(
         asset_metadata(
-            "codex-package_SHA256SUMS",
+            "winkagent-package_SHA256SUMS",
             f"sha256:{'b' * 64}",
             reorder=reorder,
         )
@@ -1282,18 +1282,18 @@ def legacy_release_metadata_with_decoys() -> str:
     assets = [
         {
             "metadata": {
-                "name": "codex-package-x86_64-unknown-linux-musl.tar.gz",
+                "name": "winkagent-package-x86_64-unknown-linux-musl.tar.gz",
                 "digest": fake_digest,
             },
             "digest": f"sha256:{'c' * 64}",
-            "name": f"codex-npm-{target}-{VERSION}.tgz",
+            "name": f"winkagent-npm-{target}-{VERSION}.tgz",
         }
         for target in ("darwin-arm64", "darwin-x64", "linux-arm64", "linux-x64")
     ]
     return json.dumps(
         {
             "body": (
-                f'fake: {{"name":"codex-package_SHA256SUMS","digest":"{fake_digest}"}}'
+                f'fake: {{"name":"winkagent-package_SHA256SUMS","digest":"{fake_digest}"}}'
             ),
             "assets": assets,
             "tag_name": f"rust-v{VERSION}",

@@ -3,28 +3,28 @@
     "codex": {
       "platforms": {
         "macos-aarch64": {
-          "regex": "^codex-package-aarch64-apple-darwin\\.tar\\.zst$",
-          "path": "bin/codex"
+          "regex": "^winkagent-package-aarch64-apple-darwin\\.tar\\.zst$",
+          "path": "bin/winkagent"
         },
         "macos-x86_64": {
-          "regex": "^codex-package-x86_64-apple-darwin\\.tar\\.zst$",
-          "path": "bin/codex"
+          "regex": "^winkagent-package-x86_64-apple-darwin\\.tar\\.zst$",
+          "path": "bin/winkagent"
         },
         "linux-x86_64": {
-          "regex": "^codex-package-x86_64-unknown-linux-musl\\.tar\\.zst$",
-          "path": "bin/codex"
+          "regex": "^winkagent-package-x86_64-unknown-linux-musl\\.tar\\.zst$",
+          "path": "bin/winkagent"
         },
         "linux-aarch64": {
-          "regex": "^codex-package-aarch64-unknown-linux-musl\\.tar\\.zst$",
-          "path": "bin/codex"
+          "regex": "^winkagent-package-aarch64-unknown-linux-musl\\.tar\\.zst$",
+          "path": "bin/winkagent"
         },
         "windows-x86_64": {
-          "regex": "^codex-package-x86_64-pc-windows-msvc\\.tar\\.zst$",
-          "path": "bin/codex.exe"
+          "regex": "^winkagent-package-x86_64-pc-windows-msvc\\.tar\\.zst$",
+          "path": "bin/winkagent.exe"
         },
         "windows-aarch64": {
-          "regex": "^codex-package-aarch64-pc-windows-msvc\\.tar\\.zst$",
-          "path": "bin/codex.exe"
+          "regex": "^winkagent-package-aarch64-pc-windows-msvc\\.tar\\.zst$",
+          "path": "bin/winkagent.exe"
         }
       }
     },
@@ -32,27 +32,27 @@
       "platforms": {
         "macos-aarch64": {
           "regex": "^codex-app-server-package-aarch64-apple-darwin\\.tar\\.zst$",
-          "path": "bin/codex-app-server"
+          "path": "bin/winkagent-app-server"
         },
         "macos-x86_64": {
           "regex": "^codex-app-server-package-x86_64-apple-darwin\\.tar\\.zst$",
-          "path": "bin/codex-app-server"
+          "path": "bin/winkagent-app-server"
         },
         "linux-x86_64": {
           "regex": "^codex-app-server-package-x86_64-unknown-linux-musl\\.tar\\.zst$",
-          "path": "bin/codex-app-server"
+          "path": "bin/winkagent-app-server"
         },
         "linux-aarch64": {
           "regex": "^codex-app-server-package-aarch64-unknown-linux-musl\\.tar\\.zst$",
-          "path": "bin/codex-app-server"
+          "path": "bin/winkagent-app-server"
         },
         "windows-x86_64": {
           "regex": "^codex-app-server-package-x86_64-pc-windows-msvc\\.tar\\.zst$",
-          "path": "bin/codex-app-server.exe"
+          "path": "bin/winkagent-app-server.exe"
         },
         "windows-aarch64": {
           "regex": "^codex-app-server-package-aarch64-pc-windows-msvc\\.tar\\.zst$",
-          "path": "bin/codex-app-server.exe"
+          "path": "bin/winkagent-app-server.exe"
         }
       }
     },

@@ -18,7 +18,7 @@ class SourceBinariesForTargetTest(unittest.TestCase):
         self.assertEqual(
             source_binaries_for_target(
                 TARGET_SPECS["aarch64-apple-darwin"],
-                PACKAGE_VARIANTS["codex"],
+                PACKAGE_VARIANTS["winkagent"],
                 build_entrypoint=False,
                 build_code_mode_host=False,
                 build_bwrap=False,
@@ -34,7 +34,7 @@ class SourceBinariesForTargetTest(unittest.TestCase):
         self.assertEqual(
             source_binaries_for_target(
                 TARGET_SPECS["x86_64-unknown-linux-musl"],
-                PACKAGE_VARIANTS["codex"],
+                PACKAGE_VARIANTS["winkagent"],
                 build_entrypoint=False,
                 build_code_mode_host=False,
                 build_bwrap=False,
@@ -50,7 +50,7 @@ class SourceBinariesForTargetTest(unittest.TestCase):
         self.assertEqual(
             source_binaries_for_target(
                 TARGET_SPECS["x86_64-pc-windows-msvc"],
-                PACKAGE_VARIANTS["codex"],
+                PACKAGE_VARIANTS["winkagent"],
                 build_entrypoint=False,
                 build_code_mode_host=False,
                 build_bwrap=False,
@@ -64,7 +64,7 @@ class SourceBinariesForTargetTest(unittest.TestCase):
         self.assertEqual(
             source_binaries_for_target(
                 TARGET_SPECS["x86_64-pc-windows-msvc"],
-                PACKAGE_VARIANTS["codex"],
+                PACKAGE_VARIANTS["winkagent"],
                 build_entrypoint=False,
                 build_code_mode_host=False,
                 build_bwrap=False,
@@ -98,7 +98,7 @@ class SourceBinariesForTargetTest(unittest.TestCase):
 
             outputs = build_source_binaries(
                 TARGET_SPECS["x86_64-pc-windows-msvc"],
-                PACKAGE_VARIANTS["codex"],
+                PACKAGE_VARIANTS["winkagent"],
                 cargo=str(root / "cargo-that-should-not-run"),
                 profile="release",
                 entrypoint_bin=entrypoint,
