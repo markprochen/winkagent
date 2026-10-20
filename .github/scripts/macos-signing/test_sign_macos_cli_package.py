@@ -32,7 +32,7 @@ if name == "codesign":
         sys.exit(1)
     if "--entitlements" in args:
         target = Path(args[-1]).name
-        if target == "CodexCLI.app":
+        if target == "WinkAgentCLI.app":
             source = Path(os.environ["CODEX_REPO_ROOT"]) / "signing-verification/codex-provisioned-entitlements.plist"
         elif target in ("codex", "codex-code-mode-host"):
             source = Path(os.environ["MOCK_SIGNING_SCRIPTS"]) / (target + ".entitlements.plist")
@@ -96,7 +96,7 @@ class MacosSigningTests(ProvisioningTestCase):
         (package / "winkagent-package.json").write_text(
             json.dumps(
                 {
-                    "variant": "codex",
+                    "variant": "winkagent",
                     "layoutVersion": 1,
                     "target": target,
                     "entrypoint": "bin/winkagent",
@@ -228,7 +228,7 @@ class MacosSigningTests(ProvisioningTestCase):
                     )
                     with zipfile.ZipFile(root / "provisioned-cli.zip") as archive:
                         info = plistlib.loads(
-                            archive.read("CodexCLI.app/Contents/Info.plist")
+                            archive.read("WinkAgentCLI.app/Contents/Info.plist")
                         )
                         self.assertEqual(
                             info["CFBundleIdentifier"], "com.openai.codex.cli"
@@ -257,7 +257,7 @@ class MacosSigningTests(ProvisioningTestCase):
                         )
                         self.assertEqual(
                             archive.read(
-                                "CodexCLI.app/Contents/embedded.provisionprofile"
+                                "WinkAgentCLI.app/Contents/embedded.provisionprofile"
                             ),
                             self.configuration.profile.read_bytes(),
                         )

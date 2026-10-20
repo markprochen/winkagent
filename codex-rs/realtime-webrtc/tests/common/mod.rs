@@ -76,7 +76,7 @@ pub fn package(test: &str) -> Result<Option<PathBuf>> {
     let root = &package.0;
     fs::create_dir_all(root.join("bin"))?;
     fs::create_dir_all(root.join("codex-resources/voice/bin"))?;
-    fs::write(root.join("codex-package.json"), "{}")?;
+    fs::write(root.join("winkagent-package.json"), "{}")?;
     codex_utils_cargo_bin::copy_executable(&source, &root.join("bin").join(APP))?;
     codex_utils_cargo_bin::copy_executable(
         &source,

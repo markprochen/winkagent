@@ -86,7 +86,7 @@ fn install_helper(root: &Path) -> Result<CodexPackageLayout> {
     let helper_dir = root.join("codex-resources/voice/bin");
     fs::create_dir_all(&bin)?;
     fs::create_dir_all(&helper_dir)?;
-    fs::write(root.join("codex-package.json"), "{}")?;
+    fs::write(root.join("winkagent-package.json"), "{}")?;
     let app = bin.join(if cfg!(windows) { "codex.exe" } else { "codex" });
     fs::write(&app, [])?;
     let source = cargo_bin("codex-voice-host")?;
@@ -156,7 +156,7 @@ async fn installed_client_accepts_non_utf8_package_path() -> Result<()> {
     let helper_dir = root.join("codex-resources/voice/bin");
     fs::create_dir_all(&bin)?;
     fs::create_dir_all(&helper_dir)?;
-    fs::write(root.join("codex-package.json"), "{}")?;
+    fs::write(root.join("winkagent-package.json"), "{}")?;
     let app = bin.join("codex");
     fs::write(&app, [])?;
     let source = cargo_bin("codex-voice-host")?;

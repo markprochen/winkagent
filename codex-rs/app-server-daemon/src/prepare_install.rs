@@ -234,8 +234,8 @@ async fn prepare_from_package(
         .tempdir_in(&releases)?;
     let mut staged_digests = BTreeMap::new();
     let digest = package_tree(source, Some(stage.path()), &mut staged_digests)?;
-    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("CodexCLI.app").is_dir() {
-        Path::new("CodexCLI.app/Contents/MacOS/codex")
+    let staged_exe = if cfg!(target_os = "macos") && stage.path().join("WinkAgentCLI.app").is_dir() {
+        Path::new("WinkAgentCLI.app/Contents/MacOS/codex")
     } else {
         Path::new(source_entrypoint)
     };

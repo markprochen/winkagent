@@ -145,7 +145,7 @@ class ProvisionedCliTests(ProvisioningTestCase):
             root = Path(directory)
             package = root / "original package"
             metadata = {
-                "variant": "codex",
+                "variant": "winkagent",
                 "layoutVersion": 1,
                 "target": "aarch64-apple-darwin",
                 "entrypoint": "bin/winkagent",

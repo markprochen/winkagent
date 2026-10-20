@@ -16,8 +16,8 @@ BUNDLE_ID = "com.openai.codex.cli"
 # Existing login-keychain ACLs identify the CLI by its code-signing identifier.
 # Keep this stable independently of the bundle and provisioned App ID.
 CODE_SIGNING_ID = "codex"
-APP = Path("CodexCLI.app")
-EXECUTABLE = APP / "Contents/MacOS/codex"
+APP = Path("WinkAgentCLI.app")
+EXECUTABLE = APP / "Contents/MacOS/winkagent"
 SIGNING = Path(__file__).resolve().parent
 HELPERS = ("bin/codex-code-mode-host", "codex-path/rg")
 LAUNCHER = """#!/bin/sh
@@ -29,7 +29,7 @@ while [ -L "$entry" ]; do
   case "$entry" in /*) ;; *) entry="$parent/$entry" ;; esac
 done
 bin_dir=$(CDPATH= cd -P -- "$(dirname -- "$entry")" && pwd)
-exec "$bin_dir/../CodexCLI.app/Contents/MacOS/codex" "$@"
+exec "$bin_dir/../WinkAgentCLI.app/Contents/MacOS/winkagent" "$@"
 """
 
 
@@ -120,7 +120,7 @@ def prepare(package, reports, configuration: ProfileConfiguration):
     load_profile(configuration)
     metadata = json.loads((package / "winkagent-package.json").read_text())
     if (
-        metadata["variant"] != "codex"
+        metadata["variant"] != "winkagent"
         or metadata["layoutVersion"] != 1
         or metadata["target"] not in ("aarch64-apple-darwin", "x86_64-apple-darwin")
         or metadata["entrypoint"] != "bin/winkagent"
@@ -141,9 +141,9 @@ def prepare(package, reports, configuration: ProfileConfiguration):
         plistlib.dumps(
             {
                 "CFBundleIdentifier": BUNDLE_ID,
-                "CFBundleDisplayName": "ChatGPT",
-                "CFBundleExecutable": "codex",
-                "CFBundleName": "ChatGPT",
+                "CFBundleDisplayName": "WinkAgent",
+                "CFBundleExecutable": "winkagent",
+                "CFBundleName": "WinkAgent",
                 "CFBundlePackageType": "APPL",
                 "CFBundleVersion": "1",
             }
