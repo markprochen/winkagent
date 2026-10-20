@@ -1,13 +1,13 @@
 [package]
-name = "codex-cli"
+name = "winkagent-cli"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 build = "build.rs"
-default-run = "codex"
+default-run = "winkagent"
 
 [[bin]]
-name = "codex"
+name = "winkagent"
 path = "src/main.rs"
 
 [[bin]]

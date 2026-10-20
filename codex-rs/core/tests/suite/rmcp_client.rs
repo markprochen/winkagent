@@ -2530,7 +2530,7 @@ async fn stdio_mcp_tool_call_includes_sandbox_state_meta(
             // The real CLI is explicitly provided; the test harness is not a CLI.
             config.codex_self_exe = Some(
                 AbsolutePathBuf::from_absolute_path_checked(
-                    cargo_bin("codex").expect("codex binary"),
+                    cargo_bin("winkagent").expect("codex binary"),
                 )
                 .expect("absolute codex binary path")
                 .into_path_buf(),

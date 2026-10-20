@@ -10,7 +10,7 @@ use std::time::Duration;
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn history_lookup_uses_server_provider_with_local_and_embedded_servers() -> Result<()> {
-    let codex = codex_utils_cargo_bin::cargo_bin("codex")?;
+    let codex = codex_utils_cargo_bin::cargo_bin("winkagent")?;
     let cwd = codex_utils_cargo_bin::repo_root()?;
     for action in ["resume", "fork"] {
         for (embedded, last, explicit) in [

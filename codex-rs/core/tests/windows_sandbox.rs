@@ -166,7 +166,7 @@ fn stage_windows_sandbox_cli(fixture_bin: &Path) -> anyhow::Result<(PathBuf, Pat
     let resources_dir = fixture_bin.join("codex-resources");
     std::fs::create_dir_all(&resources_dir)?;
 
-    let codex_source = codex_utils_cargo_bin::cargo_bin("codex")?;
+    let codex_source = codex_utils_cargo_bin::cargo_bin("winkagent")?;
     let codex = fixture_bin.join("codex.exe");
     codex_utils_cargo_bin::copy_executable(&codex_source, &codex)
         .with_context(|| format!("copy {} to {}", codex_source.display(), codex.display()))?;

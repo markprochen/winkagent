@@ -25,7 +25,7 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
     for directory in ["bin", "codex-path", "codex-resources/voice"] {
         std::fs::create_dir_all(package.join(directory))?;
     }
-    copy_executable(&codex_utils_cargo_bin::cargo_bin("codex")?, &codex)?;
+    copy_executable(&codex_utils_cargo_bin::cargo_bin("winkagent")?, &codex)?;
     for helper in [
         "codex-code-mode-host.exe",
         "codex-path/rg.exe",
@@ -39,7 +39,7 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
         "target": target, "entrypoint": entrypoint
     });
     let manifest_bytes = serde_json::to_vec(&metadata)?;
-    std::fs::write(package.join("codex-package.json"), &manifest_bytes)?;
+    std::fs::write(package.join("winkagent-package.json"), &manifest_bytes)?;
     let checksum = format!("{:x}", Sha256::digest(std::fs::read(&codex)?));
     let voice_bytes = serde_json::to_vec(&serde_json::json!({
         "sha256": { &entrypoint: checksum, "codex-resources/voice/runtime": "untouched" }
@@ -78,8 +78,8 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
         );
     }
     let selected_metadata: Value =
-        serde_json::from_slice(&std::fs::read(current.join("codex-package.json"))?)?;
-    metadata["entrypoint"] = "bin/codex.exe".into();
+        serde_json::from_slice(&std::fs::read(current.join("winkagent-package.json"))?)?;
+    metadata["entrypoint"] = "bin/winkagent.exe".into();
     assert_eq!(selected_metadata, metadata);
     let selected_voice: Value = serde_json::from_slice(&std::fs::read(
         current.join("codex-resources/voice/manifest.json"),
@@ -88,7 +88,7 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
         selected_voice,
         serde_json::json!({
             "sha256": {
-                "bin/codex.exe": checksum,
+                "bin/winkagent.exe": checksum,
                 "codex-resources/voice/runtime": "untouched"
             }
         })
@@ -109,7 +109,7 @@ fn winget_package_starts_and_reselects_daemon() -> Result<()> {
     );
     assert_eq!(current.canonicalize()?, selected);
     assert_eq!(
-        std::fs::read(package.join("codex-package.json"))?,
+        std::fs::read(package.join("winkagent-package.json"))?,
         manifest_bytes
     );
     assert_eq!(

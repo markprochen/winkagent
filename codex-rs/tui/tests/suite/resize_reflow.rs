@@ -575,14 +575,14 @@ impl Drop for TmuxSession {
 }
 
 fn codex_binary(repo_root: &Path) -> Result<PathBuf> {
-    if let Ok(path) = codex_utils_cargo_bin::cargo_bin("codex") {
+    if let Ok(path) = codex_utils_cargo_bin::cargo_bin("winkagent") {
         return Ok(path);
     }
 
-    let fallback = repo_root.join("codex-rs/target/debug/codex");
+    let fallback = repo_root.join("codex-rs/target/debug/winkagent");
     anyhow::ensure!(
         fallback.is_file(),
-        "codex binary is unavailable; run `cargo build -p codex-cli` first"
+        "winkagent binary is unavailable; run `cargo build -p winkagent-cli --bin winkagent` first"
     );
     Ok(fallback)
 }

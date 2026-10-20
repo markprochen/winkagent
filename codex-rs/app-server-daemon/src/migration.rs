@@ -95,9 +95,9 @@ pub(super) async fn run(http: &impl InstallerHttp, legacy: &Daemon) -> Result<Up
         "installer did not prepare a latest-channel daemon package"
     );
     let entrypoint = if cfg!(windows) {
-        "bin/codex.exe"
+        "bin/winkagent.exe"
     } else {
-        "bin/codex"
+        "bin/winkagent"
     };
     let binary = release.join(entrypoint);
     let version = managed_install::managed_codex_version(&binary).await?;

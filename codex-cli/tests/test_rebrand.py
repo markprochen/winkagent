@@ -24,6 +24,20 @@ class RebrandTests(unittest.TestCase):
             "winkagent-win32-arm64",
         )
 
+    def test_rust_cli_uses_winkagent(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        cargo_manifest = (repo_root / "codex-rs" / "cli" / "Cargo.toml").read_text(
+            encoding="utf-8"
+        )
+        main_source = (repo_root / "codex-rs" / "cli" / "src" / "main.rs").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('name = "winkagent-cli"', cargo_manifest)
+        self.assertIn('default-run = "winkagent"', cargo_manifest)
+        self.assertIn('name = "winkagent"', cargo_manifest)
+        self.assertIn('bin_name = "winkagent"', main_source)
+        self.assertIn("/// WinkAgent CLI", main_source)
+
 
 if __name__ == "__main__":
     unittest.main()

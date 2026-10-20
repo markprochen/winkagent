@@ -152,15 +152,15 @@ async fn prepare_from_package(
         !root.canonicalize()?.starts_with(source.canonicalize()?),
         "CODEX_HOME must be outside the source CLI package"
     );
-    let manifest_bytes = std::fs::read(source.join("codex-package.json"))?;
+    let manifest_bytes = std::fs::read(source.join("winkagent-package.json"))?;
     let manifest: CodexPackageManifest = serde_json::from_slice(&manifest_bytes)?;
     let version = manifest.version.to_string();
     let target = platform_target()?;
     let mut metadata: serde_json::Value = serde_json::from_slice(&manifest_bytes)?;
     let entrypoint = if cfg!(windows) {
-        "bin/codex.exe"
+        "bin/winkagent.exe"
     } else {
-        "bin/codex"
+        "bin/winkagent"
     };
     let source_entrypoint = metadata["entrypoint"].as_str().unwrap_or_default();
     let winget = cfg!(windows)
@@ -241,7 +241,7 @@ async fn prepare_from_package(
     };
     anyhow::ensure!(
         package_tree(source, /*destination*/ None, &mut BTreeMap::new())? == digest
-            && std::fs::read(stage.path().join("codex-package.json"))? == manifest_bytes
+            && std::fs::read(stage.path().join("winkagent-package.json"))? == manifest_bytes
             && staged_digests.get(staged_exe).map(blake3::Hash::as_bytes)
                 == Some(&running_identity.digest),
         "the CLI package changed while preparing the daemon or differs from the running executable"
@@ -283,8 +283,8 @@ async fn prepare_from_package(
         }
         metadata["entrypoint"] = entrypoint.into();
         let bytes = serde_json::to_vec_pretty(&metadata)?;
-        std::fs::write(stage.path().join("codex-package.json"), &bytes)?;
-        staged_digests.insert(PathBuf::from("codex-package.json"), blake3::hash(&bytes));
+        std::fs::write(stage.path().join("winkagent-package.json"), &bytes)?;
+        staged_digests.insert(PathBuf::from("winkagent-package.json"), blake3::hash(&bytes));
         package_tree(stage.path(), /*destination*/ None, &mut staged_digests)?
     } else {
         digest
@@ -311,7 +311,7 @@ async fn prepare_from_package(
     } else {
         #[cfg(unix)]
         if !stage.path().join("codex").exists() {
-            std::os::unix::fs::symlink("bin/codex", stage.path().join("codex"))?;
+            std::os::unix::fs::symlink("bin/winkagent", stage.path().join("codex"))?;
         }
         #[cfg(windows)]
         windows::publish_release(stage.path(), &release).await?;
@@ -440,7 +440,7 @@ fn package_tree(
         // The Unix installer adds this alias outside the package layout.
         if cfg!(unix)
             && relative == Path::new("codex")
-            && std::fs::read_link(&path).ok().as_deref() == Some(Path::new("bin/codex"))
+            && std::fs::read_link(&path).ok().as_deref() == Some(Path::new("bin/winkagent"))
         {
             continue;
         }
@@ -512,7 +512,7 @@ fn validate_package(root: &Path, entrypoint: &str) -> Result<()> {
     });
     let code_mode_host = code_mode_host.to_string_lossy();
     let mut names = vec![
-        "codex-package.json",
+        "winkagent-package.json",
         entrypoint,
         code_mode_host.as_ref(),
         if cfg!(windows) {
@@ -536,7 +536,7 @@ fn validate_package(root: &Path, entrypoint: &str) -> Result<()> {
             ));
         }
         #[cfg(unix)]
-        if name != "codex-package.json" {
+        if name != "winkagent-package.json" {
             use std::os::unix::fs::PermissionsExt;
             if std::fs::metadata(root.join(name))?.permissions().mode() & 0o111 == 0 {
                 return Err(anyhow!(

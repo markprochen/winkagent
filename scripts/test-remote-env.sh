@@ -44,7 +44,7 @@ setup_remote_env() {
 
   (
     cd "${REPO_ROOT}/codex-rs"
-    cargo build -p codex-cli --bin codex
+  cargo build -p winkagent-cli --bin winkagent
   )
 
   if [[ ! -f "${codex_binary_path}" ]]; then

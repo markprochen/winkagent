@@ -112,7 +112,7 @@ use codex_protocol::protocol::AskForApproval;
 use codex_protocol::user_input::UserInput;
 use codex_terminal_detection::TerminalName;
 
-/// Codex CLI
+/// WinkAgent CLI
 ///
 /// If no subcommand is specified, options will be forwarded to the interactive CLI.
 #[derive(Debug, Parser)]
@@ -121,11 +121,11 @@ use codex_terminal_detection::TerminalName;
     version,
     // If a sub‑command is given, ignore requirements of the default args.
     subcommand_negates_reqs = true,
-    // The executable is sometimes invoked via a platform‑specific name like
-    // `codex-x86_64-unknown-linux-musl`, but the help output should always use
-    // the generic `codex` command name that users run.
-    bin_name = "codex",
-    override_usage = "codex [OPTIONS] [PROMPT]\n       codex [OPTIONS] <COMMAND> [ARGS]"
+    // The executable is sometimes invoked via a platform-specific name like
+    // `winkagent-x86_64-unknown-linux-musl`, but the help output should always
+    // use the generic `winkagent` command name that users run.
+    bin_name = "winkagent",
+    override_usage = "winkagent [OPTIONS] [PROMPT]\n       winkagent [OPTIONS] <COMMAND> [ARGS]"
 )]
 struct MultitoolCli {
     #[clap(flatten)]
@@ -2776,7 +2776,7 @@ fn merge_interactive_cli_flags(interactive: &mut TuiCli, subcommand_cli: TuiCli)
 
 fn print_completion(cmd: CompletionCommand) {
     let mut app = MultitoolCli::command();
-    let name = "codex";
+    let name = "winkagent";
     generate(cmd.shell, &mut app, name, &mut std::io::stdout());
 }
 
@@ -3515,6 +3515,17 @@ enabled = true
             command
                 .get_subcommands()
                 .all(|subcommand| subcommand.get_name() != "responses")
+        );
+    }
+
+    #[test]
+    fn winkagent_branding_is_public() {
+        let command = MultitoolCli::command();
+        assert_eq!(command.get_name(), "winkagent");
+        assert!(
+            command
+                .get_about()
+                .is_some_and(|about| about.to_string().contains("WinkAgent"))
         );
     }
 
