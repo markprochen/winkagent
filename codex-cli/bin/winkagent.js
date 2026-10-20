@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Unified entry point for the Codex CLI.
+// Unified entry point for the WinkAgent CLI.
 
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "fs";
@@ -14,12 +14,12 @@ const require = createRequire(import.meta.url);
 const codexPackageRoot = realpathSync(path.join(__dirname, ".."));
 
 const PLATFORM_PACKAGE_BY_TARGET = {
-  "x86_64-unknown-linux-musl": "@openai/codex-linux-x64",
-  "aarch64-unknown-linux-musl": "@openai/codex-linux-arm64",
-  "x86_64-apple-darwin": "@openai/codex-darwin-x64",
-  "aarch64-apple-darwin": "@openai/codex-darwin-arm64",
-  "x86_64-pc-windows-msvc": "@openai/codex-win32-x64",
-  "aarch64-pc-windows-msvc": "@openai/codex-win32-arm64",
+  "x86_64-unknown-linux-musl": "winkagent-linux-x64",
+  "aarch64-unknown-linux-musl": "winkagent-linux-arm64",
+  "x86_64-apple-darwin": "winkagent-darwin-x64",
+  "aarch64-apple-darwin": "winkagent-darwin-arm64",
+  "x86_64-pc-windows-msvc": "winkagent-win32-x64",
+  "aarch64-pc-windows-msvc": "winkagent-win32-arm64",
 };
 
 const { platform, arch } = process;
@@ -89,7 +89,7 @@ function findCodexExecutable() {
     vendorRoot,
     targetTriple,
     "bin",
-    process.platform === "win32" ? "codex.exe" : "codex",
+    process.platform === "win32" ? "winkagent.exe" : "winkagent",
   );
   if (existsSync(codexExecutable)) {
     return codexExecutable;
@@ -98,14 +98,14 @@ function findCodexExecutable() {
   const packageManager = detectPackageManager();
   const updateCommand =
     packageManager === "bun"
-      ? "bun install -g @openai/codex@latest"
+      ? "bun install -g winkagent@latest"
       : packageManager === "pnpm"
-        ? "pnpm add -g @openai/codex@latest"
+        ? "pnpm add -g winkagent@latest"
         : packageManager === "vite-plus"
-          ? "vp install -g @openai/codex@latest"
-          : "npm install -g @openai/codex@latest";
+          ? "vp install -g winkagent@latest"
+          : "npm install -g winkagent@latest";
   throw new Error(
-    `Missing optional dependency ${platformPackage}. Reinstall Codex: ${updateCommand}`,
+    `Missing optional dependency ${platformPackage}. Reinstall WinkAgent: ${updateCommand}`,
   );
 }
 
@@ -124,8 +124,7 @@ function isPnpmOwnedCodexInstall(nodeModulesDir) {
 
   try {
     return (
-      realpathSync(path.join(nodeModulesDir, "@openai", "codex")) ===
-      codexPackageRoot
+      realpathSync(path.join(nodeModulesDir, "winkagent")) === codexPackageRoot
     );
   } catch {
     return false;
@@ -139,24 +138,24 @@ function isVitePlusOwnedCodexInstall(packagesDir) {
 
   try {
     const metadata = JSON.parse(
-      readFileSync(path.join(packagesDir, "@openai", "codex.json"), "utf8"),
+      readFileSync(path.join(packagesDir, "winkagent.json"), "utf8"),
     );
-    if (metadata.name !== "@openai/codex") {
+    if (metadata.name !== "winkagent") {
       return false;
     }
 
-    // Vite+ records the active global installation in packages/@openai/codex.json.
+    // Vite+ records the active global installation in packages/winkagent.json.
     // Older installs have no ID or append a #-prefixed ID to the package name;
     // newer installs put the ID in a subdirectory of the package prefix.
     const installId = metadata.installId || "";
     const installDir = installId.startsWith("#")
-      ? path.join(packagesDir, `@openai/codex${installId}`)
-      : path.join(packagesDir, "@openai/codex", installId);
+      ? path.join(packagesDir, `winkagent${installId}`)
+      : path.join(packagesDir, "winkagent", installId);
     for (const nodeModulesDir of [
       path.join(installDir, "lib", "node_modules"),
       path.join(installDir, "node_modules"),
     ]) {
-      const packageRoot = path.join(nodeModulesDir, "@openai", "codex");
+      const packageRoot = path.join(nodeModulesDir, "winkagent");
       if (
         existsSync(packageRoot) &&
         realpathSync(packageRoot) === codexPackageRoot
@@ -165,13 +164,13 @@ function isVitePlusOwnedCodexInstall(packagesDir) {
       }
     }
   } catch {
-    // Missing or unreadable ownership metadata must not prevent Codex starting.
+    // Missing or unreadable ownership metadata must not prevent WinkAgent starting.
   }
   return false;
 }
 
 /**
- * Use heuristics to detect the package manager that was used to install Codex
+ * Use heuristics to detect the package manager that was used to install WinkAgent
  * in order to give the user a hint about how to update it.
  */
 function detectPackageManager() {

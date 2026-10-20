@@ -1,17 +1,17 @@
 {
-  "name": "@openai/codex",
+  "name": "winkagent",
   "version": "0.0.0-dev",
-  "description": "Codex CLI is a coding agent from OpenAI that runs locally on your computer.",
+  "description": "WinkAgent is a coding agent that runs locally on your computer.",
   "license": "Apache-2.0",
   "bin": {
-    "codex": "bin/codex.js"
+    "winkagent": "bin/winkagent.js"
   },
   "type": "module",
   "engines": {
     "node": ">=16"
   },
   "files": [
-    "bin/codex.js"
+    "bin/winkagent.js"
   ],
   "repository": {
     "type": "git",

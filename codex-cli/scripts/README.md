@@ -6,7 +6,7 @@ example, to stage the CLI, responses proxy, and SDK packages for version `0.6.0`
 ```bash
 ./scripts/stage_npm_packages.py \
   --release-version 0.6.0 \
-  --package codex \
+  --package winkagent \
   --package codex-responses-api-proxy \
   --package codex-sdk
 ```
@@ -14,8 +14,8 @@ example, to stage the CLI, responses proxy, and SDK packages for version `0.6.0`
 This downloads the required native package archive artifacts, hydrates `vendor/` for
 each package, and writes tarballs to `dist/npm/`.
 
-When `--package codex` is provided, the staging helper builds the lightweight
-`@openai/codex` meta package plus all platform-native `@openai/codex` variants
+When `--package winkagent` is provided, the staging helper builds the lightweight
+`winkagent` meta package plus all platform-native `winkagent-*` variants
 that are later published under platform-specific dist-tags.
 
 Direct `build_npm_package.py` invocations are still useful for package-specific
