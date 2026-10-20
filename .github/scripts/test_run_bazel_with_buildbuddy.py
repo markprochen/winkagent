@@ -36,20 +36,20 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
     def test_keyless_invocation_drops_remote_ci_configuration(self) -> None:
         self.assertIsNone(
             run_bazel_with_buildbuddy.remote_config(
-                ["build", "--config=ci-linux", "//codex-rs/cli:codex"],
+                ["build", "--config=ci-linux", "//codex-rs/cli:winkagent"],
                 {},
             )
         )
         self.assertEqual(
             run_bazel_with_buildbuddy.bazel_args_with_remote_config(
-                ["build", "--config=ci-linux", "--", "//codex-rs/cli:codex"],
+                ["build", "--config=ci-linux", "--", "//codex-rs/cli:winkagent"],
                 {},
             ),
-            ["build", "--", "//codex-rs/cli:codex"],
+            ["build", "--", "//codex-rs/cli:winkagent"],
         )
 
     def test_program_arguments_after_separator_do_not_select_or_lose_rbe(self) -> None:
-        args = ["run", "//codex-rs/cli:codex", "--", "--config=remote"]
+        args = ["run", "//codex-rs/cli:winkagent", "--", "--config=remote"]
 
         self.assertEqual(
             run_bazel_with_buildbuddy.bazel_args_with_remote_config(args, {}),
@@ -68,7 +68,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
 
             self.assertEqual(
                 run_bazel_with_buildbuddy.bazel_args_with_remote_config(
-                    ["build", "--config=ci-linux", "--", "//codex-rs/cli:codex"],
+                    ["build", "--config=ci-linux", "--", "//codex-rs/cli:winkagent"],
                     env,
                 ),
                 [
@@ -77,7 +77,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
                     "--remote_header=x-buildbuddy-api-key=token",
                     "--config=ci-linux",
                     "--",
-                    "//codex-rs/cli:codex",
+                    "//codex-rs/cli:winkagent",
                 ],
             )
 
@@ -86,7 +86,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
 
         self.assertEqual(
             run_bazel_with_buildbuddy.bazel_args_with_remote_config(
-                ["build", "--config=ci-windows-cross", "//codex-rs/cli:codex"],
+                ["build", "--config=ci-windows-cross", "//codex-rs/cli:winkagent"],
                 env,
             ),
             [
@@ -94,7 +94,7 @@ class RunBazelWithBuildBuddyTest(unittest.TestCase):
                 "--config=buildbuddy-generic-rbe",
                 "--remote_header=x-buildbuddy-api-key=fork-token",
                 "--config=ci-windows-cross",
-                "//codex-rs/cli:codex",
+                "//codex-rs/cli:winkagent",
             ],
         )
 

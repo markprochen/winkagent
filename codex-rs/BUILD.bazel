@@ -23,7 +23,7 @@ test_suite(
     name = "e2e-benchmarks",
     tags = ["manual"],
     tests = [
-        "//codex-rs/cli:codex-help-bench",
+        "//codex-rs/cli:winkagent-help-bench",
     ],
     visibility = ["//visibility:public"],
 )

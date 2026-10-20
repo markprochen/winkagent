@@ -92,7 +92,7 @@ jobs:
             --build_metadata=COMMIT_SHA=${GITHUB_SHA} \
             --build_metadata=TAG_job=sdk \
             -- \
-            //codex-rs/cli:codex \
+            //codex-rs/cli:winkagent \
             //codex-rs/code-mode-host:codex-code-mode-host
 
           cquery_output="$(
@@ -101,7 +101,7 @@ jobs:
               cquery \
               --output=files \
               -- \
-              'set(//codex-rs/cli:codex //codex-rs/code-mode-host:codex-code-mode-host)' \
+              'set(//codex-rs/cli:winkagent //codex-rs/code-mode-host:codex-code-mode-host)' \
               | grep -E '^(/|bazel-out/)'
           )"
           mapfile -t bazel_output_paths <<< "${cquery_output}"

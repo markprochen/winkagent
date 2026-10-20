@@ -307,7 +307,9 @@ impl PtyCodex {
         extra_args: &[&str],
     ) -> Result<Self> {
         let codex = codex_utils_cargo_bin::cargo_bin("winkagent")
-            .context("build codex-cli and set CARGO_BIN_EXE_codex to its executable")?;
+            .context(
+                "build winkagent-cli and set CARGO_BIN_EXE_winkagent to its executable",
+            )?;
         Self::start_binary(
             &codex, repo_root, codex_home, extra_args, /*editor*/ None,
         )

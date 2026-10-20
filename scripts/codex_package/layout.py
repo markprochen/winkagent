@@ -1,6 +1,7 @@
 """Canonical Codex package directory layout."""
 
 import json
+import os
 import shutil
 import stat
 from pathlib import Path
@@ -169,4 +170,6 @@ def write_json(path: Path, value: object) -> None:
 
 
 def is_executable(path: Path) -> bool:
+    if os.name == "nt":
+        return path.is_file()
     return bool(path.stat().st_mode & stat.S_IXUSR)
