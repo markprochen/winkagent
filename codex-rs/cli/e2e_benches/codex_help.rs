@@ -20,7 +20,7 @@ fn codex_help(bencher: Bencher) {
         let output = Command::new(&codex)
             .arg("--help")
             .output()
-            .expect("codex --help should run");
-        assert!(output.status.success(), "codex --help should succeed");
+            .expect("winkagent --help should run");
+        assert!(output.status.success(), "winkagent --help should succeed");
     });
 }

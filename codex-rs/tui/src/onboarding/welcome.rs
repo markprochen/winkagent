@@ -126,8 +126,8 @@ impl WidgetRef for &WelcomeWidget {
         lines.push(Line::from(vec![
             "  ".into(),
             "Welcome to ".into(),
-            "Codex".bold(),
-            ", OpenAI's command-line coding agent".into(),
+            "WinkAgent".bold(),
+            ", a command-line coding agent".into(),
         ]));
 
         Paragraph::new(lines)
@@ -173,6 +173,10 @@ mod tests {
         let mut buf = Buffer::empty(area);
         (&widget).render_ref(area, &mut buf);
 
+        assert!(
+            row_containing(&buf, "WinkAgent").is_some(),
+            "welcome screen should display the WinkAgent brand"
+        );
         let welcome_row = row_containing(&buf, "Welcome");
         assert_eq!(welcome_row, Some(ANIMATION_HEIGHT + 1));
         widget.set_focused(/*focused*/ false);

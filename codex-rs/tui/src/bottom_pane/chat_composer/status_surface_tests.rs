@@ -364,7 +364,7 @@ fn slash_popup_preserves_footer_and_selection_style() {
         /*has_input_focus*/ true,
         AppEventSender::new(tx),
         /*enhanced_keys_supported*/ false,
-        "Ask Codex to do anything".to_string(),
+        "Ask WinkAgent to do anything".to_string(),
         /*disable_paste_burst*/ true,
     );
     composer.set_status_line_enabled(/*enabled*/ true);

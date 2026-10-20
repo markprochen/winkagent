@@ -16,6 +16,6 @@ impl SandboxUninstallCommand {
             codex_windows_sandbox::clean_up_legacy_windows_sandbox()
         }
         #[cfg(not(target_os = "windows"))]
-        anyhow::bail!("`codex sandbox uninstall` is only supported on Windows")
+        anyhow::bail!("`winkagent sandbox uninstall` is only supported on Windows")
     }
 }

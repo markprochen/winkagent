@@ -38,6 +38,18 @@ class RebrandTests(unittest.TestCase):
         self.assertIn('bin_name = "winkagent"', main_source)
         self.assertIn("/// WinkAgent CLI", main_source)
 
+    def test_tui_uses_winkagent_brand(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        session_source = (
+            repo_root / "codex-rs" / "tui" / "src" / "history_cell" / "session.rs"
+        ).read_text(encoding="utf-8")
+        welcome_source = (
+            repo_root / "codex-rs" / "tui" / "src" / "onboarding" / "welcome.rs"
+        ).read_text(encoding="utf-8")
+        self.assertIn('"WinkAgent".bold()', session_source)
+        self.assertIn('"WinkAgent".bold()', welcome_source)
+        self.assertIn('"Welcome to ".into()', welcome_source)
+
 
 if __name__ == "__main__":
     unittest.main()

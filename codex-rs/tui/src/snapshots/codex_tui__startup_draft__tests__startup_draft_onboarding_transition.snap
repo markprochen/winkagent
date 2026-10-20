@@ -6,10 +6,10 @@ before onboarding: hidden (0x0 viewport)
 ---
 after onboarding:
 
-  >_ OpenAI Codex (v<VERSION>)
+  >_ WinkAgent (v<VERSION>)
      loading
 
 
-› Ask Codex to do anything
+› Ask WinkAgent to do anything
 
   ? for shortcuts
