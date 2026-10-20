@@ -181,7 +181,10 @@ impl App {
                             " If the server restarts, WinkAgent will reconnect automatically.",
                         );
                     }
-                    (Some("WinkAgent's background server is shutting down"), message)
+                    (
+                        Some("WinkAgent's background server is shutting down"),
+                        message,
+                    )
                 } else {
                     (None, format!("Failed to start session: {error}"))
                 };

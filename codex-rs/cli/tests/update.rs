@@ -18,7 +18,9 @@ async fn update_does_not_start_interactive_prompt() -> Result<()> {
         .arg("update")
         .assert()
         .failure()
-        .stderr(contains("`winkagent update` is not available in debug builds"));
+        .stderr(contains(
+            "`winkagent update` is not available in debug builds",
+        ));
 
     Ok(())
 }

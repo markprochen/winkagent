@@ -408,7 +408,10 @@ async fn explicit_selection_requires_unchanged_cli_and_pins_all_versions() {
                 std::fs::read(selected.join("bin/winkagent")).unwrap(),
                 std::fs::read(&bin).unwrap()
             );
-            assert_eq!(std::fs::read(previous.join("bin/winkagent")).unwrap(), before);
+            assert_eq!(
+                std::fs::read(previous.join("bin/winkagent")).unwrap(),
+                before
+            );
             // Different resources, even at the same version: retain last two selections.
             for entry in std::fs::read_dir(root.join("releases")).unwrap() {
                 let path = entry.unwrap().path().canonicalize().unwrap();

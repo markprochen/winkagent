@@ -220,7 +220,9 @@ fn default_owned_screen_entry_paints_before_sync_ends_and_exit_clears_inline_dra
         .context("missing composer in first owned-screen frame")?;
     assert_eq!(
         (
-            first_contents.matches("Ask WinkAgent to do anything").count(),
+            first_contents
+                .matches("Ask WinkAgent to do anything")
+                .count(),
             first_frame.screen().cursor_position(),
             first_frame.screen().hide_cursor(),
         ),
@@ -307,9 +309,7 @@ impl PtyCodex {
         extra_args: &[&str],
     ) -> Result<Self> {
         let codex = codex_utils_cargo_bin::cargo_bin("winkagent")
-            .context(
-                "build winkagent-cli and set CARGO_BIN_EXE_winkagent to its executable",
-            )?;
+            .context("build winkagent-cli and set CARGO_BIN_EXE_winkagent to its executable")?;
         Self::start_binary(
             &codex, repo_root, codex_home, extra_args, /*editor*/ None,
         )
