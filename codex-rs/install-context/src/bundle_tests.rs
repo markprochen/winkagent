@@ -5,10 +5,24 @@ use pretty_assertions::assert_eq;
 use std::fs;
 
 #[test]
+fn package_layout_uses_winkagent_helper_names() {
+    assert_eq!(RESOURCES_DIRNAME, "winkagent-resources");
+    assert_eq!(PATH_DIRNAME, "winkagent-path");
+    assert_eq!(
+        CODE_MODE_HOST_EXECUTABLE_NAME,
+        if cfg!(windows) {
+            "winkagent-code-mode-host.exe"
+        } else {
+            "winkagent-code-mode-host"
+        }
+    );
+}
+
+#[test]
 fn bundle_executable_preserves_package_layout_and_install_method() -> std::io::Result<()> {
     let home = tempfile::tempdir()?;
     let package = home.path().join("packages/standalone/releases/test");
-    let executable = package.join("WinkAgentCLI.app/Contents/MacOS/codex");
+    let executable = package.join("WinkAgentCLI.app/Contents/MacOS/winkagent");
     fs::create_dir_all(executable.parent().unwrap())?;
     fs::write(&executable, "")?;
     for directory in [BIN_DIRNAME, RESOURCES_DIRNAME, PATH_DIRNAME] {

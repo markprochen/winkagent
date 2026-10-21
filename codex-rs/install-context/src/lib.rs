@@ -9,14 +9,14 @@ use serde::Deserialize;
 
 const BIN_DIRNAME: &str = "bin";
 const CODE_MODE_HOST_EXECUTABLE_NAME: &str = if cfg!(windows) {
-    "codex-code-mode-host.exe"
+    "winkagent-code-mode-host.exe"
 } else {
-    "codex-code-mode-host"
+    "winkagent-code-mode-host"
 };
 const PACKAGE_METADATA_FILENAME: &str = "winkagent-package.json";
-const PATH_DIRNAME: &str = "codex-path";
+const PATH_DIRNAME: &str = "winkagent-path";
 const RELEASES_DIRNAME: &str = "releases";
-const RESOURCES_DIRNAME: &str = "codex-resources";
+const RESOURCES_DIRNAME: &str = "winkagent-resources";
 const STANDALONE_PACKAGES_DIRNAME: &str = "standalone";
 static INSTALL_CONTEXT: OnceLock<InstallContext> = OnceLock::new();
 
@@ -57,7 +57,7 @@ pub enum InstallMethod {
         /// such as
         /// `~/.codex/packages/standalone/releases/0.111.0-x86_64-unknown-linux-musl`.
         /// Package-layout installs use the package root that contains `bin/`,
-        /// `codex-resources/`, and `codex-path/`.
+        /// `winkagent-resources/`, and `winkagent-path/`.
         release_dir: AbsolutePathBuf,
         /// The bundled resource directory for managed dependencies.
         resources_dir: Option<AbsolutePathBuf>,
@@ -173,7 +173,7 @@ impl InstallContext {
     }
 
     pub fn code_mode_host_program(&self) -> PathBuf {
-        // prefer the one packed under codex-resources
+        // prefer the one packed under winkagent-resources
         self.bundled_resource(CODE_MODE_HOST_EXECUTABLE_NAME)
             .map_or_else(
                 || self.code_mode_host_program_from_exe(std::env::current_exe().ok().as_deref()),
@@ -565,8 +565,8 @@ mod tests {
   "target": "x86_64-unknown-linux-musl",
   "variant": "winkagent",
   "entrypoint": "bin/winkagent",
-  "resourcesDir": "codex-resources",
-  "pathDir": "codex-path"
+  "resourcesDir": "winkagent-resources",
+  "pathDir": "winkagent-path"
 }
 "#,
         )?;

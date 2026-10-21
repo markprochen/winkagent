@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 PACKAGE_NAME = "openai-codex-cli-bin"
-PACKAGE_METADATA_FILENAME = "codex-package.json"
+PACKAGE_METADATA_FILENAME = "winkagent-package.json"
 
 
 def bundled_package_dir() -> Path:
@@ -16,17 +16,17 @@ def bundled_package_dir() -> Path:
 
 
 def bundled_codex_path() -> Path:
-    exe = "codex.exe" if os.name == "nt" else "codex"
+    exe = "winkagent.exe" if os.name == "nt" else "winkagent"
     path = bundled_package_dir() / "bin" / exe
     if not path.is_file():
         raise FileNotFoundError(
-            f"{PACKAGE_NAME} is installed but missing its packaged codex binary at {path}"
+            f"{PACKAGE_NAME} is installed but missing its packaged WinkAgent binary at {path}"
         )
     return path
 
 
 def bundled_path_dir() -> Path | None:
-    path = bundled_package_dir() / "codex-path"
+    path = bundled_package_dir() / "winkagent-path"
     return path if path.is_dir() else None
 
 

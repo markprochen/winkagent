@@ -28,7 +28,7 @@ async fn relocated_runtime_initializes_closes_and_rejects_duplicate_initializati
         .prefix("voice native package ")
         .tempdir()?;
     let root = directory.path().join("staging");
-    let runtime = root.join("codex-resources/voice");
+    let runtime = root.join("winkagent-resources/voice");
     fs::create_dir_all(&runtime)?;
     let mut pending = vec![(source, runtime.clone())];
     while let Some((source, destination)) = pending.pop() {

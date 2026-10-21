@@ -252,7 +252,7 @@ async fn respond_environment_info(
             | PushedExecScenario::CodexPathWithExplicitOverride
     ) {
         response["result"]["prependPathDirs"] = json!([
-            "file:///executor/codex-path",
+            "file:///executor/winkagent-path",
             "file:///executor/extra-tools",
         ]);
     } else if matches!(scenario, PushedExecScenario::UnusableCodexPath) {
@@ -1650,7 +1650,7 @@ timeout = 900
         let script = argv[2]
             .as_str()
             .context("shell command should contain a script")?;
-        assert!(script.contains("export PATH=/executor/codex-path"));
+        assert!(script.contains("export PATH=/executor/winkagent-path"));
         assert!(script.contains("export PATH=/executor/extra-tools"));
         assert!(script.ends_with("; sh -c 'command -v rg'"));
         assert_eq!(script.lines().count(), 1);

@@ -420,7 +420,7 @@ function findCodexPath(): CodexPathResolution {
     );
   }
 
-  const codexBinaryName = process.platform === "win32" ? "codex.exe" : "codex";
+  const codexBinaryName = process.platform === "win32" ? "winkagent.exe" : "winkagent";
   const nativePackage = resolveNativePackage(vendorRoot, targetTriple, codexBinaryName);
   if (!nativePackage) {
     throw new Error(
@@ -438,10 +438,13 @@ export function resolveNativePackage(
 ): CodexPathResolution | null {
   const packageRoot = path.join(vendorRoot, targetTriple);
   const packageBinaryPath = path.join(packageRoot, "bin", codexBinaryName);
-  if (isFile(packageBinaryPath) && isFile(path.join(packageRoot, "codex-package.json"))) {
+  if (
+    isFile(packageBinaryPath) &&
+    isFile(path.join(packageRoot, "winkagent-package.json"))
+  ) {
     return {
       executablePath: packageBinaryPath,
-      pathDirs: existingDirs(path.join(packageRoot, "codex-path")),
+      pathDirs: existingDirs(path.join(packageRoot, "winkagent-path")),
     };
   }
 

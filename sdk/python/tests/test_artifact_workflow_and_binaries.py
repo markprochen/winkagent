@@ -73,13 +73,13 @@ def _load_release_version_module():
 
 def _write_fake_codex_package(package_dir: Path, script) -> Path:
     (package_dir / "bin").mkdir(parents=True)
-    (package_dir / "codex-resources").mkdir()
-    (package_dir / "codex-path").mkdir()
-    (package_dir / "codex-package.json").write_text('{"variant":"codex"}\n')
+    (package_dir / "winkagent-resources").mkdir()
+    (package_dir / "winkagent-path").mkdir()
+    (package_dir / "winkagent-package.json").write_text('{"variant":"winkagent"}\n')
     (package_dir / "bin" / script.runtime_binary_name()).write_text("fake codex\n")
     (package_dir / "bin" / script.runtime_code_mode_host_name()).write_text("fake code mode host\n")
-    (package_dir / "codex-resources" / "bwrap").write_text("fake bwrap\n")
-    (package_dir / "codex-path" / "rg").write_text("fake rg\n")
+    (package_dir / "winkagent-resources" / "bwrap").write_text("fake bwrap\n")
+    (package_dir / "winkagent-path" / "rg").write_text("fake rg\n")
     return package_dir
 
 
@@ -759,10 +759,10 @@ def test_runtime_package_is_wheel_only_and_builds_platform_specific_wheels() -> 
     assert pyproject["tool"]["hatch"]["build"]["targets"]["wheel"] == {
         "packages": ["src/codex_cli_bin"],
         "include": [
-            "src/codex_cli_bin/codex-package.json",
+            "src/codex_cli_bin/winkagent-package.json",
             "src/codex_cli_bin/bin/**",
-            "src/codex_cli_bin/codex-resources/**",
-            "src/codex_cli_bin/codex-path/**",
+            "src/codex_cli_bin/winkagent-resources/**",
+            "src/codex_cli_bin/winkagent-path/**",
         ],
         "hooks": {"custom": {}},
     }
@@ -791,13 +791,13 @@ def test_stage_runtime_release_copies_package_layout_and_sets_version(
     package_root = script.staged_runtime_package_root(staged)
 
     assert {
-        "metadata": (package_root / "codex-package.json").read_text(),
+        "metadata": (package_root / "winkagent-package.json").read_text(),
         "codex": (package_root / "bin" / script.runtime_binary_name()).read_text(),
         "code_mode_host": (package_root / "bin" / script.runtime_code_mode_host_name()).read_text(),
-        "bwrap": (package_root / "codex-resources" / "bwrap").read_text(),
-        "rg": (package_root / "codex-path" / "rg").read_text(),
+        "bwrap": (package_root / "winkagent-resources" / "bwrap").read_text(),
+        "rg": (package_root / "winkagent-path" / "rg").read_text(),
     } == {
-        "metadata": '{"variant":"codex"}\n',
+        "metadata": '{"variant":"winkagent"}\n',
         "codex": "fake codex\n",
         "code_mode_host": "fake code mode host\n",
         "bwrap": "fake bwrap\n",
@@ -945,8 +945,8 @@ def test_stage_runtime_directory_matches_archive(tmp_path: Path) -> None:
         )
 
     assert staged_trees[0] == staged_trees[1]
-    (script.staged_runtime_package_root(tmp_path / "directory") / "codex-package.json").unlink()
-    assert (package_dir / "codex-package.json").is_file()
+    (script.staged_runtime_package_root(tmp_path / "directory") / "winkagent-package.json").unlink()
+    assert (package_dir / "winkagent-package.json").is_file()
 
 
 @pytest.mark.parametrize("entry_kind", ["file-link", "directory-link", "fifo"])
@@ -955,13 +955,15 @@ def test_stage_runtime_directory_rejects_non_regular_entries(
 ) -> None:
     script = _load_update_script_module()
     package_dir = _write_fake_codex_package(tmp_path / "codex-package", script)
-    entry = package_dir / "codex-resources" / "invalid"
+    entry = package_dir / "winkagent-resources" / "invalid"
     if entry_kind == "fifo":
         if not hasattr(os, "mkfifo"):
             pytest.skip("FIFOs are not available on this platform")
         os.mkfifo(entry)
     else:
-        target = package_dir / ("codex-package.json" if entry_kind == "file-link" else "bin")
+        target = package_dir / (
+            "winkagent-package.json" if entry_kind == "file-link" else "bin"
+        )
         try:
             entry.symlink_to(target, target_is_directory=target.is_dir())
         except OSError:
@@ -981,7 +983,7 @@ def test_stage_runtime_directory_rejects_overlapping_staging(
     with pytest.raises(RuntimeError, match="directories must not overlap"):
         script.stage_python_runtime_package(tmp_path / staging_path, "1.2.3", package_dir)
 
-    assert (package_dir / "codex-package.json").is_file()
+    assert (package_dir / "winkagent-package.json").is_file()
 
 
 def test_runtime_package_layout_is_included_by_wheel_config(
@@ -998,10 +1000,10 @@ def test_runtime_package_layout_is_included_by_wheel_config(
 
     pyproject = tomllib.loads((staged / "pyproject.toml").read_text())
     assert pyproject["tool"]["hatch"]["build"]["targets"]["wheel"]["include"] == [
-        "src/codex_cli_bin/codex-package.json",
+        "src/codex_cli_bin/winkagent-package.json",
         "src/codex_cli_bin/bin/**",
-        "src/codex_cli_bin/codex-resources/**",
-        "src/codex_cli_bin/codex-path/**",
+        "src/codex_cli_bin/winkagent-resources/**",
+        "src/codex_cli_bin/winkagent-path/**",
     ]
 
 

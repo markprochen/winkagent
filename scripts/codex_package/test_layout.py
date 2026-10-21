@@ -73,7 +73,7 @@ int main(void) {
                         # Preserved prebuilt inputs must not even need a strip tool.
                         command.extend(("--strip-tool", str(root / "absent-strip")))
                     subprocess.run(command, check=True, capture_output=True)
-                    for name in ("winkagent", "codex-code-mode-host"):
+                    for name in ("winkagent", "winkagent-code-mode-host"):
                         executable = package / "bin" / name
                         self.assertEqual(
                             subprocess.check_output([str(executable)]),
@@ -84,10 +84,10 @@ int main(void) {
                         else:
                             self.assertLess(executable.stat().st_size, len(original))
                     self.assertEqual(source.read_bytes(), original)
-                    self.assertEqual((package / "codex-path/rg").read_bytes(), original)
+                    self.assertEqual((package / "winkagent-path/rg").read_bytes(), original)
                     if "linux" in target:
                         self.assertEqual(
-                            (package / "codex-resources/bwrap").read_bytes(), original
+                            (package / "winkagent-resources/bwrap").read_bytes(), original
                         )
 
     def test_winget_preserves_signed_files_and_voice_hashes(self) -> None:
@@ -96,13 +96,13 @@ int main(void) {
                 package = Path(temp)
                 files = {
                     "bin/winkagent.exe": b"signed CLI",
-                    "bin/codex-code-mode-host.exe": b"signed code mode host",
-                    "codex-resources/codex-command-runner.exe": b"signed runner",
-                    "codex-resources/codex-windows-sandbox-setup.exe": b"signed setup",
-                    "codex-resources/voice/bin/codex-voice-host.exe": b"signed voice host",
-                    "codex-resources/voice/bin/gstreamer-1.0-0.dll": b"signed audio DLL",
-                    "codex-resources/voice/NOTICE.md": b"license notices",
-                    "codex-path/rg.exe": b"ripgrep",
+                    "bin/winkagent-code-mode-host.exe": b"signed code mode host",
+                    "winkagent-resources/winkagent-command-runner.exe": b"signed runner",
+                    "winkagent-resources/winkagent-windows-sandbox-setup.exe": b"signed setup",
+                    "winkagent-resources/voice/bin/winkagent-voice-host.exe": b"signed voice host",
+                    "winkagent-resources/voice/bin/gstreamer-1.0-0.dll": b"signed audio DLL",
+                    "winkagent-resources/voice/NOTICE.md": b"license notices",
+                    "winkagent-path/rg.exe": b"ripgrep",
                 }
                 for name, contents in files.items():
                     path = package / name
@@ -120,22 +120,22 @@ int main(void) {
                         name: hashlib.sha256(contents).hexdigest()
                         for name, contents in files.items()
                         if name == "bin/winkagent.exe"
-                        or name.startswith("codex-resources/voice/")
+                        or name.startswith("winkagent-resources/voice/")
                     },
                 }
-                manifest_path = package / "codex-resources/voice/manifest.json"
+                manifest_path = package / "winkagent-resources/voice/manifest.json"
                 manifest_path.write_text(json.dumps(manifest))
                 prepare_winget_package(package)
                 entrypoint = f"winkagent-{target}.exe"
                 files[entrypoint] = files.pop("bin/winkagent.exe")
-                files["codex-code-mode-host.exe"] = files.pop(
-                    "bin/codex-code-mode-host.exe"
+                files["winkagent-code-mode-host.exe"] = files.pop(
+                    "bin/winkagent-code-mode-host.exe"
                 )
                 for helper in (
-                    "codex-command-runner.exe",
-                    "codex-windows-sandbox-setup.exe",
+                    "winkagent-command-runner.exe",
+                    "winkagent-windows-sandbox-setup.exe",
                 ):
-                    files[helper] = files[f"codex-resources/{helper}"]
+                    files[helper] = files[f"winkagent-resources/{helper}"]
                 actual = {
                     str(path.relative_to(package)).replace("\\", "/"): path.read_bytes()
                     for path in package.rglob("*")
@@ -143,7 +143,7 @@ int main(void) {
                 }
                 actual_metadata = json.loads(actual.pop("winkagent-package.json"))
                 actual_manifest = json.loads(
-                    actual.pop("codex-resources/voice/manifest.json")
+                    actual.pop("winkagent-resources/voice/manifest.json")
                 )
                 self.assertEqual(actual, files)
                 metadata["entrypoint"] = entrypoint
@@ -185,7 +185,7 @@ int main(void) {
 
                         self.assertEqual(
                             {
-                                "rg": (package_dir / "codex-path" / "rg").read_bytes(),
+                                "rg": (package_dir / "winkagent-path" / "rg").read_bytes(),
                             },
                             {
                                 "rg": b"signed ripgrep binary",
@@ -219,7 +219,45 @@ int main(void) {
                 TARGET_SPECS["x86_64-unknown-linux-musl"],
             )
 
-            self.assertTrue((package_dir / "bin" / "codex-code-mode-host").is_file())
+            self.assertTrue((package_dir / "bin" / "winkagent-code-mode-host").is_file())
+
+    def test_windows_package_has_only_winkagent_public_helper_names(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            package_dir = root / "package"
+            package_dir.mkdir()
+            inputs = PackageInputs(
+                entrypoint_bin=touch_executable(root / "winkagent.exe"),
+                code_mode_host_bin=touch_executable(root / "codex-code-mode-host.exe"),
+                rg_bin=touch_executable(root / "rg.exe"),
+                bwrap_bin=None,
+                codex_command_runner_bin=touch_executable(root / "codex-command-runner.exe"),
+                codex_windows_sandbox_setup_bin=touch_executable(
+                    root / "codex-windows-sandbox-setup.exe"
+                ),
+            )
+
+            build_package_dir(
+                package_dir,
+                "1.2.3",
+                PACKAGE_VARIANTS["winkagent"],
+                TARGET_SPECS["x86_64-pc-windows-msvc"],
+                inputs,
+            )
+            validate_package_dir(
+                package_dir,
+                PACKAGE_VARIANTS["winkagent"],
+                TARGET_SPECS["x86_64-pc-windows-msvc"],
+            )
+
+            relative_paths = {
+                path.relative_to(package_dir).as_posix()
+                for path in package_dir.rglob("*")
+            }
+            self.assertFalse(
+                any("codex" in path.casefold() for path in relative_paths),
+                relative_paths,
+            )
 
 
 def touch_executable(path: Path) -> Path:

@@ -59,6 +59,19 @@ class RebrandTests(unittest.TestCase):
         self.assertIn('cargo_bin="winkagent"', targets)
         self.assertIn('executable_stem="winkagent"', targets)
 
+    def test_release_package_layout_has_no_primary_codex_paths(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        layout = (
+            repo_root / "scripts" / "codex_package" / "layout.py"
+        ).read_text(encoding="utf-8")
+        self.assertIn('package_dir / "winkagent-resources"', layout)
+        self.assertIn('package_dir / "winkagent-path"', layout)
+        self.assertIn('"winkagent-code-mode-host', layout)
+        self.assertIn('"winkagent-command-runner.exe"', layout)
+        self.assertIn('"winkagent-windows-sandbox-setup.exe"', layout)
+        self.assertNotIn('package_dir / "codex-resources"', layout)
+        self.assertNotIn('package_dir / "codex-path"', layout)
+
 
 if __name__ == "__main__":
     unittest.main()

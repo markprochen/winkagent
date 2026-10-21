@@ -146,7 +146,7 @@ async fn prepare_from_package(
         );
     }
     let source = source.context(
-        "this CLI has no complete local package; install a packaged Codex CLI or use the standalone installer",
+        "this CLI has no complete local package; install a packaged WinkAgent CLI or use the standalone installer",
     )?;
     anyhow::ensure!(
         !root.canonicalize()?.starts_with(source.canonicalize()?),
@@ -165,7 +165,7 @@ async fn prepare_from_package(
     let source_entrypoint = metadata["entrypoint"].as_str().unwrap_or_default();
     let winget = cfg!(windows)
         && metadata["layoutVersion"] == 1
-        && source_entrypoint == format!("codex-{target}.exe");
+        && source_entrypoint == format!("winkagent-{target}.exe");
     anyhow::ensure!(
         metadata["target"] == target && (source_entrypoint == entrypoint || winget),
         "the CLI package does not match this platform or executable"
@@ -236,7 +236,7 @@ async fn prepare_from_package(
     let digest = package_tree(source, Some(stage.path()), &mut staged_digests)?;
     let staged_exe = if cfg!(target_os = "macos") && stage.path().join("WinkAgentCLI.app").is_dir()
     {
-        Path::new("WinkAgentCLI.app/Contents/MacOS/codex")
+        Path::new("WinkAgentCLI.app/Contents/MacOS/winkagent")
     } else {
         Path::new(source_entrypoint)
     };
@@ -255,8 +255,8 @@ async fn prepare_from_package(
         for (from, to) in [
             (staged_exe, Path::new(entrypoint)),
             (
-                Path::new("codex-code-mode-host.exe"),
-                Path::new("bin/codex-code-mode-host.exe"),
+                Path::new("winkagent-code-mode-host.exe"),
+                Path::new("bin/winkagent-code-mode-host.exe"),
             ),
         ] {
             windows::publish_release(&stage.path().join(from), &stage.path().join(to)).await?;
@@ -264,7 +264,7 @@ async fn prepare_from_package(
                 staged_digests.insert(to.to_path_buf(), digest);
             }
         }
-        let voice_path = stage.path().join("codex-resources/voice/manifest.json");
+        let voice_path = stage.path().join("winkagent-resources/voice/manifest.json");
         if voice_path.try_exists()? {
             let mut voice: serde_json::Value =
                 serde_json::from_slice(&std::fs::read(&voice_path)?)?;
@@ -278,7 +278,7 @@ async fn prepare_from_package(
             let bytes = serde_json::to_vec_pretty(&voice)?;
             std::fs::write(voice_path, &bytes)?;
             staged_digests.insert(
-                PathBuf::from("codex-resources/voice/manifest.json"),
+                PathBuf::from("winkagent-resources/voice/manifest.json"),
                 blake3::hash(&bytes),
             );
         }
@@ -314,8 +314,8 @@ async fn prepare_from_package(
         );
     } else {
         #[cfg(unix)]
-        if !stage.path().join("codex").exists() {
-            std::os::unix::fs::symlink("bin/winkagent", stage.path().join("codex"))?;
+        if !stage.path().join("winkagent").exists() {
+            std::os::unix::fs::symlink("bin/winkagent", stage.path().join("winkagent"))?;
         }
         #[cfg(windows)]
         windows::publish_release(stage.path(), &release).await?;
@@ -510,9 +510,9 @@ fn stable_version(value: &str) -> Option<semver::Version> {
 
 fn validate_package(root: &Path, entrypoint: &str) -> Result<()> {
     let code_mode_host = Path::new(entrypoint).with_file_name(if cfg!(windows) {
-        "codex-code-mode-host.exe"
+        "winkagent-code-mode-host.exe"
     } else {
-        "codex-code-mode-host"
+        "winkagent-code-mode-host"
     });
     let code_mode_host = code_mode_host.to_string_lossy();
     let mut names = vec![
@@ -520,23 +520,23 @@ fn validate_package(root: &Path, entrypoint: &str) -> Result<()> {
         entrypoint,
         code_mode_host.as_ref(),
         if cfg!(windows) {
-            "codex-path/rg.exe"
+            "winkagent-path/rg.exe"
         } else {
-            "codex-path/rg"
+            "winkagent-path/rg"
         },
     ];
     if cfg!(windows) {
         names.extend([
-            "codex-resources/codex-command-runner.exe",
-            "codex-resources/codex-windows-sandbox-setup.exe",
+            "winkagent-resources/winkagent-command-runner.exe",
+            "winkagent-resources/winkagent-windows-sandbox-setup.exe",
         ]);
     } else if cfg!(target_os = "linux") {
-        names.push("codex-resources/bwrap");
+        names.push("winkagent-resources/bwrap");
     }
     for name in names {
         if !root.join(name).is_file() {
             return Err(anyhow!(
-                "local Codex package is missing {name}; reinstall the CLI or use the standalone installer"
+                "local WinkAgent package is missing {name}; reinstall the CLI or use the standalone installer"
             ));
         }
         #[cfg(unix)]
@@ -544,7 +544,7 @@ fn validate_package(root: &Path, entrypoint: &str) -> Result<()> {
             use std::os::unix::fs::PermissionsExt;
             if std::fs::metadata(root.join(name))?.permissions().mode() & 0o111 == 0 {
                 return Err(anyhow!(
-                    "local Codex package file {name} is not executable; reinstall the CLI or use the standalone installer"
+                    "local WinkAgent package file {name} is not executable; reinstall the CLI or use the standalone installer"
                 ));
             }
         }

@@ -483,6 +483,11 @@ function Test-OldStandaloneBinLayout {
         "winkagent.exe",
         "codex.exe",
         "rg.exe",
+        "winkagent-code-mode-host.exe",
+        "winkagent-command-runner.exe",
+        "winkagent-windows-sandbox.exe",
+        "winkagent-windows-sandbox-setup.exe",
+        "codex-code-mode-host.exe",
         "codex-command-runner.exe",
         "codex-windows-sandbox.exe",
         "codex-windows-sandbox-setup.exe"
@@ -768,10 +773,10 @@ function Test-PackageContentsAreComplete {
     $expectedFiles = @(
         "winkagent-package.json",
         "bin\winkagent.exe",
-        "bin\codex-code-mode-host.exe",
-        "codex-path\rg.exe",
-        "codex-resources\codex-command-runner.exe",
-        "codex-resources\codex-windows-sandbox-setup.exe"
+        "bin\winkagent-code-mode-host.exe",
+        "winkagent-path\rg.exe",
+        "winkagent-resources\winkagent-command-runner.exe",
+        "winkagent-resources\winkagent-windows-sandbox-setup.exe"
     )
     foreach ($name in $expectedFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $PackageDir $name) -PathType Leaf)) {

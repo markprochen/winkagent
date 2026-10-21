@@ -557,7 +557,7 @@ jobs:
           New-Item -ItemType Directory -Path $package | Out-Null
           tar -xzf "dist/$target/winkagent-package-$target.tar.gz" -C $package
           if ($LASTEXITCODE -ne 0) { throw "Cannot extract the final Windows package" }
-          $voice = Join-Path $package 'codex-resources/voice'
+          $voice = Join-Path $package 'winkagent-resources/voice'
           $helper = Join-Path $voice 'bin/winkagent-voice-host.exe'
           if (-not (Test-Path $helper) -or -not (Test-Path (Join-Path $voice 'bin/gstreamer-1.0-0.dll'))) {
             throw 'Signed Windows voice files are missing from the canonical package'
@@ -595,7 +595,7 @@ jobs:
           python - "$wheel_package" <<'PY'
           import sys
           from pathlib import Path
-          assert not (Path(sys.argv[1]) / "codex-resources" / "voice").exists()
+          assert not (Path(sys.argv[1]) / "winkagent-resources" / "voice").exists()
           PY
           stage_dir="${RUNNER_TEMP}/openai-codex-cli-bin-${{ matrix.target }}"
           wheel_dir="${GITHUB_WORKSPACE}/python-runtime-dist/${{ matrix.target }}"

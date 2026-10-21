@@ -27,7 +27,7 @@ from release_version import normalize_codex_version  # noqa: E402
 SDK_DISTRIBUTION_NAME = "openai-codex"
 RUNTIME_DISTRIBUTION_NAME = "openai-codex-cli-bin"
 RUNTIME_PACKAGE_ROOT = Path("src") / "codex_cli_bin"
-CODEX_PACKAGE_METADATA = "codex-package.json"
+CODEX_PACKAGE_METADATA = "winkagent-package.json"
 
 
 def repo_root() -> Path:
@@ -52,11 +52,15 @@ def _is_windows() -> bool:
 
 
 def runtime_binary_name() -> str:
-    return "codex.exe" if _is_windows() else "codex"
+    return "winkagent.exe" if _is_windows() else "winkagent"
 
 
 def runtime_code_mode_host_name() -> str:
-    return "codex-code-mode-host.exe" if _is_windows() else "codex-code-mode-host"
+    return (
+        "winkagent-code-mode-host.exe"
+        if _is_windows()
+        else "winkagent-code-mode-host"
+    )
 
 
 def staged_runtime_package_root(root: Path) -> Path:
@@ -239,7 +243,7 @@ def _validate_codex_package_layout(package_dir: Path, package_source: Path) -> N
     missing_entries = []
     if not (package_dir / CODEX_PACKAGE_METADATA).is_file():
         missing_entries.append(CODEX_PACKAGE_METADATA)
-    for entry in ("bin", "codex-resources", "codex-path"):
+    for entry in ("bin", "winkagent-resources", "winkagent-path"):
         if not (package_dir / entry).is_dir():
             missing_entries.append(entry)
     package_binary = package_dir / "bin" / runtime_binary_name()

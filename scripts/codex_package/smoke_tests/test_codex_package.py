@@ -2,16 +2,16 @@
 
 ROOT_OF_EXTRACTED_PACKAGE
 ├── bin
-│   ├── codex[.exe]                       # CLI package only
+│   ├── winkagent[.exe]                       # CLI package only
 │   ├── codex-app-server[.exe]            # app-server package only
-│   └── codex-code-mode-host[.exe]
+│   └── winkagent-code-mode-host[.exe]
 ├── winkagent-package.json
-├── codex-path
+├── winkagent-path
 │   └── rg[.exe]
-└── codex-resources
+└── winkagent-resources
     ├── bwrap                             # Linux only
-    ├── codex-command-runner.exe          # Windows only
-    ├── codex-windows-sandbox-setup.exe   # Windows only
+    ├── winkagent-command-runner.exe          # Windows only
+    ├── winkagent-windows-sandbox-setup.exe   # Windows only
 
 Debug symbols for all shipped binaries arrive in a separate companion archive.
 Each package contains one entrypoint, not both codex and codex-app-server.
@@ -63,7 +63,7 @@ def test_cli_version_matches_release_sources(package: SmokePackage) -> None:
     )
     manifest = tomllib.loads((root / "codex-rs/Cargo.toml").read_text())
     version = manifest["workspace"]["package"]["version"]
-    assert package.run("--version").stdout == f"codex-cli {version}\n"
+    assert package.run("--version").stdout == f"winkagent {version}\n"
 
 
 @pytest.mark.parametrize("entrypoint", ["codex", "codex-app-server"])
@@ -240,7 +240,7 @@ def test_windows_debug_symbols_resolve_packaged_code(
     shutil.copy2(code_mode_host_debug_symbols, cargo_symbols)
     symbols = (code_mode_host_debug_symbols, cargo_symbols)
     host = code_mode_host_debug_symbols.with_suffix(".exe")
-    shutil.copy2(package.cli.with_name("codex-code-mode-host.exe"), host)
+    shutil.copy2(package.cli.with_name("winkagent-code-mode-host.exe"), host)
     result = subprocess.run(
         ["dumpbin", "/PDBPATH", str(host)],
         cwd=package.directory,

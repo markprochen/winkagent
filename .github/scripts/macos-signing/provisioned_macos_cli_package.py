@@ -19,7 +19,7 @@ CODE_SIGNING_ID = "codex"
 APP = Path("WinkAgentCLI.app")
 EXECUTABLE = APP / "Contents/MacOS/winkagent"
 SIGNING = Path(__file__).resolve().parent
-HELPERS = ("bin/codex-code-mode-host", "codex-path/rg")
+HELPERS = ("bin/winkagent-code-mode-host", "winkagent-path/rg")
 LAUNCHER = """#!/bin/sh
 set -eu
 entry="$0"

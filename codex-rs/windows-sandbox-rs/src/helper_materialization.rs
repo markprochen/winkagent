@@ -21,9 +21,9 @@ use crate::sandbox_bin_dir;
 use crate::setup::SetupRuntime;
 
 const DEV_BUILD_VERSION_SENTINEL: &str = "0.0.0";
-const COMMAND_RUNNER_EXE: &str = "codex-command-runner.exe";
+const COMMAND_RUNNER_EXE: &str = "winkagent-command-runner.exe";
 pub(crate) const BIN_DIRNAME: &str = "bin";
-pub(crate) const RESOURCES_DIRNAME: &str = "codex-resources";
+pub(crate) const RESOURCES_DIRNAME: &str = "winkagent-resources";
 
 pub(crate) fn helper_bin_dir(codex_home: &Path) -> PathBuf {
     sandbox_bin_dir(codex_home)
@@ -189,7 +189,7 @@ pub(crate) fn bundled_executable_path_for_exe(exe: &Path, file_name: &str) -> Op
 }
 
 fn materialized_file_name(suffix: &str) -> String {
-    format!("codex-command-runner-{suffix}.exe")
+    format!("winkagent-command-runner-{suffix}.exe")
 }
 
 fn helper_version_suffix(source: &Path) -> Result<String> {
@@ -216,6 +216,7 @@ fn dev_build_suffix(source: &Path) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::BIN_DIRNAME;
+    use super::COMMAND_RUNNER_EXE;
     use super::CopyOutcome;
     use super::DEV_BUILD_VERSION_SENTINEL;
     use super::RESOURCES_DIRNAME;
@@ -232,6 +233,12 @@ mod tests {
     use std::path::Path;
     use std::path::PathBuf;
     use tempfile::TempDir;
+
+    #[test]
+    fn package_helper_names_are_winkagent_branded() {
+        assert_eq!(COMMAND_RUNNER_EXE, "winkagent-command-runner.exe");
+        assert_eq!(RESOURCES_DIRNAME, "winkagent-resources");
+    }
 
     #[test]
     fn helper_bin_dir_is_under_sandbox_bin() {
@@ -280,7 +287,7 @@ mod tests {
         let codex_home = tmp.path().join("codex-home");
         let source_dir = tmp.path().join("sibling-source");
         fs::create_dir_all(&source_dir).expect("create source dir");
-        let runner_source = source_dir.join("codex-command-runner.exe");
+        let runner_source = source_dir.join("winkagent-command-runner.exe");
         fs::write(&runner_source, b"runner").expect("runner");
         let runner_suffix = helper_version_suffix(&runner_source).expect("runner suffix");
         let runner_destination =
@@ -303,13 +310,15 @@ mod tests {
         let resources_dir = release_dir.join(RESOURCES_DIRNAME);
         fs::create_dir_all(&resources_dir).expect("create resources dir");
         let exe = release_dir.join("codex.exe");
-        let helper = resources_dir.join("codex-command-runner.exe");
+        let helper = resources_dir.join("winkagent-command-runner.exe");
         fs::write(&exe, b"codex").expect("write exe");
         fs::write(&helper, b"runner").expect("write helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "codex-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "winkagent-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, helper);
     }
@@ -323,13 +332,15 @@ mod tests {
         fs::create_dir_all(&bin_dir).expect("create bin dir");
         fs::create_dir_all(&resources_dir).expect("create resources dir");
         let exe = bin_dir.join("codex.exe");
-        let helper = resources_dir.join("codex-command-runner.exe");
+        let helper = resources_dir.join("winkagent-command-runner.exe");
         fs::write(&exe, b"codex").expect("write exe");
         fs::write(&helper, b"runner").expect("write helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "codex-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "winkagent-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, helper);
     }
@@ -345,7 +356,7 @@ mod tests {
         fs::create_dir_all(&resources_dir).expect("create resources dir");
         fs::create_dir_all(&install_dir).expect("create install dir");
         fs::write(bin_dir.join("codex.exe"), b"codex").expect("write exe");
-        let helper = resources_dir.join("codex-windows-sandbox-setup.exe");
+        let helper = resources_dir.join("winkagent-windows-sandbox-setup.exe");
         fs::write(&helper, b"setup").expect("write helper");
 
         let junction = install_dir.join(BIN_DIRNAME);
@@ -360,7 +371,7 @@ mod tests {
         assert_eq!(
             bundled_executable_path_for_exe(
                 &junction.join("codex.exe"),
-                /*file_name*/ "codex-windows-sandbox-setup.exe"
+                /*file_name*/ "winkagent-windows-sandbox-setup.exe"
             ),
             Some(dunce::canonicalize(&helper).expect("canonical helper"))
         );
@@ -376,15 +387,17 @@ mod tests {
         fs::create_dir_all(&package_resources_dir).expect("create package resources dir");
         fs::create_dir_all(&bin_resources_dir).expect("create bin resources dir");
         let exe = bin_dir.join("codex.exe");
-        let package_helper = package_resources_dir.join("codex-command-runner.exe");
-        let bin_helper = bin_resources_dir.join("codex-command-runner.exe");
+        let package_helper = package_resources_dir.join("winkagent-command-runner.exe");
+        let bin_helper = bin_resources_dir.join("winkagent-command-runner.exe");
         fs::write(&exe, b"codex").expect("write exe");
         fs::write(&package_helper, b"package runner").expect("write package helper");
         fs::write(&bin_helper, b"bin runner").expect("write bin helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "codex-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "winkagent-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, package_helper);
     }
@@ -396,15 +409,17 @@ mod tests {
         let resources_dir = release_dir.join(RESOURCES_DIRNAME);
         fs::create_dir_all(&resources_dir).expect("create resources dir");
         let exe = release_dir.join("codex.exe");
-        let sibling_helper = release_dir.join("codex-command-runner.exe");
-        let resource_helper = resources_dir.join("codex-command-runner.exe");
+        let sibling_helper = release_dir.join("winkagent-command-runner.exe");
+        let resource_helper = resources_dir.join("winkagent-command-runner.exe");
         fs::write(&exe, b"codex").expect("write exe");
         fs::write(&sibling_helper, b"sibling runner").expect("write sibling helper");
         fs::write(&resource_helper, b"resource runner").expect("write resource helper");
 
-        let resolved =
-            bundled_executable_path_for_exe(&exe, /*file_name*/ "codex-command-runner.exe")
-                .expect("helper path");
+        let resolved = bundled_executable_path_for_exe(
+            &exe,
+            /*file_name*/ "winkagent-command-runner.exe",
+        )
+        .expect("helper path");
 
         assert_eq!(resolved, sibling_helper);
     }
@@ -427,6 +442,6 @@ mod tests {
     fn materialized_file_name_adds_suffix_before_extension() {
         let file_name = materialized_file_name("test-suffix");
 
-        assert_eq!(file_name, "codex-command-runner-test-suffix.exe");
+        assert_eq!(file_name, "winkagent-command-runner-test-suffix.exe");
     }
 }

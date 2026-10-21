@@ -26,7 +26,7 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
     } else {
         daemon.home.path().join("cli-package")
     };
-    for directory in ["bin", "codex-path", "codex-resources"] {
+    for directory in ["bin", "winkagent-path", "winkagent-resources"] {
         std::fs::create_dir_all(package.join(directory))?;
     }
     // Both paths are in this test's temp home and therefore on the same filesystem.
@@ -38,9 +38,9 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
     )?;
     daemon.codex = package.join("bin/winkagent");
     for helper in [
-        "bin/codex-code-mode-host",
-        "codex-path/rg",
-        "codex-resources/bwrap",
+        "bin/winkagent-code-mode-host",
+        "winkagent-path/rg",
+        "winkagent-resources/bwrap",
     ] {
         codex_utils_cargo_bin::write_executable(&package.join(helper), "runtime fixture")?;
     }
@@ -135,7 +135,7 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
             assert!(!current.exists());
         }
 
-        std::fs::remove_file(package.join("bin/codex-code-mode-host"))?;
+        std::fs::remove_file(package.join("bin/winkagent-code-mode-host"))?;
         let invalid = daemon
             .command()
             .args(["app-server", "daemon", "update", "--from-cli", "--yes"])
@@ -147,7 +147,7 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
             assert!(!current.exists());
         }
         codex_utils_cargo_bin::write_executable(
-            &package.join("bin/codex-code-mode-host"),
+            &package.join("bin/winkagent-code-mode-host"),
             "replacement helper",
         )?;
         let replaced = daemon
@@ -179,12 +179,12 @@ fn packaged_daemon_launch(action: &str, initial: InitialDaemon) -> Result<()> {
         assert!(!dedicated.join("auto-update-version").exists());
         assert_eq!(std::fs::read(state.join("settings.json"))?, settings_before);
         assert_eq!(
-            std::fs::read(current.join("bin/codex-code-mode-host"))?,
+            std::fs::read(current.join("bin/winkagent-code-mode-host"))?,
             b"replacement helper"
         );
         if initial == InitialDaemon::Missing {
             assert_eq!(
-                std::fs::read(original.join("bin/codex-code-mode-host"))?,
+                std::fs::read(original.join("bin/winkagent-code-mode-host"))?,
                 b"runtime fixture"
             );
         }

@@ -259,7 +259,7 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{collector_url}/v1/metrics", pr
     std::fs::create_dir(&bin_dir)?;
     let executable = bin_dir.join(format!("codex{}", std::env::consts::EXE_SUFFIX));
     copy_executable(&codex_utils_cargo_bin::cargo_bin("winkagent")?, &executable)?;
-    let codex_path_dir = package.path().join("codex-path");
+    let codex_path_dir = package.path().join("winkagent-path");
     std::fs::create_dir(&codex_path_dir)?;
     let manifest = package.path().join("winkagent-package.json");
     std::fs::write(&manifest, r#"{"version":"1.2.3-alpha.4"}"#)?;

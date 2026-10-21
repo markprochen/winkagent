@@ -1,4 +1,4 @@
-"""Canonical Codex package directory layout."""
+"""Canonical WinkAgent package directory layout."""
 
 import json
 import os
@@ -39,8 +39,8 @@ def build_package_dir(
     inputs: PackageInputs,
 ) -> None:
     bin_dir = package_dir / "bin"
-    resources_dir = package_dir / "codex-resources"
-    path_dir = package_dir / "codex-path"
+    resources_dir = package_dir / "winkagent-resources"
+    path_dir = package_dir / "winkagent-path"
     bin_dir.mkdir()
     resources_dir.mkdir()
     path_dir.mkdir()
@@ -53,7 +53,7 @@ def build_package_dir(
     )
     copy_executable(
         inputs.code_mode_host_bin,
-        bin_dir / f"codex-code-mode-host{spec.exe_suffix}",
+        bin_dir / f"winkagent-code-mode-host{spec.exe_suffix}",
         is_windows=spec.is_windows,
     )
     copy_executable(inputs.rg_bin, path_dir / spec.rg_name, is_windows=spec.is_windows)
@@ -64,14 +64,14 @@ def build_package_dir(
     if inputs.codex_command_runner_bin is not None:
         copy_executable(
             inputs.codex_command_runner_bin,
-            resources_dir / "codex-command-runner.exe",
+            resources_dir / "winkagent-command-runner.exe",
             is_windows=True,
         )
 
     if inputs.codex_windows_sandbox_setup_bin is not None:
         copy_executable(
             inputs.codex_windows_sandbox_setup_bin,
-            resources_dir / "codex-windows-sandbox-setup.exe",
+            resources_dir / "winkagent-windows-sandbox-setup.exe",
             is_windows=True,
         )
 
@@ -81,8 +81,8 @@ def build_package_dir(
         "target": spec.target,
         "variant": variant.name,
         "entrypoint": f"bin/{entrypoint_name}",
-        "resourcesDir": "codex-resources",
-        "pathDir": "codex-path",
+        "resourcesDir": "winkagent-resources",
+        "pathDir": "winkagent-path",
     }
     write_json(package_dir / "winkagent-package.json", metadata)
 
@@ -94,8 +94,8 @@ def validate_package_dir(
 ) -> None:
     required_dirs = [
         Path("bin"),
-        Path("codex-resources"),
-        Path("codex-path"),
+        Path("winkagent-resources"),
+        Path("winkagent-path"),
     ]
     for relative_dir in required_dirs:
         path = package_dir / relative_dir
@@ -114,8 +114,8 @@ def validate_package_dir(
         "target": spec.target,
         "variant": variant.name,
         "entrypoint": f"bin/{variant.entrypoint_name(spec)}",
-        "resourcesDir": "codex-resources",
-        "pathDir": "codex-path",
+        "resourcesDir": "winkagent-resources",
+        "pathDir": "winkagent-path",
     }
     for key, expected in expected_metadata.items():
         actual = metadata.get(key)
@@ -126,20 +126,20 @@ def validate_package_dir(
 
     required_files = [
         Path("bin") / variant.entrypoint_name(spec),
-        Path("bin") / f"codex-code-mode-host{spec.exe_suffix}",
-        Path("codex-path") / spec.rg_name,
+        Path("bin") / f"winkagent-code-mode-host{spec.exe_suffix}",
+        Path("winkagent-path") / spec.rg_name,
     ]
     executable_files = list(required_files)
 
     if spec.is_linux:
-        required_files.append(Path("codex-resources") / "bwrap")
-        executable_files.append(Path("codex-resources") / "bwrap")
+        required_files.append(Path("winkagent-resources") / "bwrap")
+        executable_files.append(Path("winkagent-resources") / "bwrap")
 
     if spec.is_windows:
         required_files.extend(
             [
-                Path("codex-resources") / "codex-command-runner.exe",
-                Path("codex-resources") / "codex-windows-sandbox-setup.exe",
+                Path("winkagent-resources") / "winkagent-command-runner.exe",
+                Path("winkagent-resources") / "winkagent-windows-sandbox-setup.exe",
             ]
         )
 

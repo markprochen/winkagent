@@ -109,7 +109,7 @@ class InstallShTest(unittest.TestCase):
         self.assertIn("/winkagent-npm-", requests[1])
         self.assertNotIn("winkagent-package_SHA256SUMS", requests[1])
 
-    def test_macos_install_exposes_code_mode_host_beside_codex(self) -> None:
+    def test_macos_install_exposes_code_mode_host_beside_winkagent(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             archive_path, checksum_path, metadata_json = create_package_release(root)
@@ -126,12 +126,12 @@ class InstallShTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             install_bin = root / "install-bin"
             current = root / "codex-home" / "packages" / "standalone" / "current"
-            codex_path = install_bin / "winkagent"
-            host_path = install_bin / "codex-code-mode-host"
-            self.assertEqual(os.readlink(codex_path), str(current / "bin" / "codex"))
+            agent_path = install_bin / "winkagent"
+            host_path = install_bin / "winkagent-code-mode-host"
+            self.assertEqual(os.readlink(agent_path), str(current / "bin" / "winkagent"))
             self.assertEqual(
                 os.readlink(host_path),
-                str(current / "bin" / "codex-code-mode-host"),
+                str(current / "bin" / "winkagent-code-mode-host"),
             )
             self.assertTrue(os.access(host_path, os.X_OK))
 
@@ -223,7 +223,7 @@ class InstallShTest(unittest.TestCase):
             contents = binary.read_text()
             binary.write_text(
                 '#!/bin/sh\n[ "$1" = "--version" ] || exit 2\n'
-                f"echo codex-cli {VERSION}\n"
+                f"echo winkagent {VERSION}\n"
             )
             incompatible, _ = run_installer_in(
                 root,
@@ -374,7 +374,7 @@ class InstallShTest(unittest.TestCase):
             )
             self.assertEqual(first.returncode, 0, first.stderr)
             oldest = releases / f"{versions[0]}-{target}"
-            helper = oldest / "bin/codex-code-mode-host"
+            helper = oldest / "bin/winkagent-code-mode-host"
             shutil.copy("/bin/sleep", helper)
             if system.sysname == "Darwin":
                 # A copied macOS system binary cannot run with its platform signature.
@@ -1164,7 +1164,7 @@ def create_package_release(
 ) -> tuple[Path, Path, str]:
     package_dir = root / "package"
     (package_dir / "bin").mkdir(parents=True)
-    (package_dir / "codex-path").mkdir()
+    (package_dir / "winkagent-path").mkdir()
     (package_dir / "winkagent-package.json").write_text(
         json.dumps(
             {"version": binary_version, "target": target, "entrypoint": "bin/winkagent"}
@@ -1172,17 +1172,19 @@ def create_package_release(
         encoding="utf-8",
     )
     write_executable(
-        package_dir / "bin" / "codex",
-        f"#!/bin/sh\nprintf 'codex-cli {binary_version}\\n'\n",
+        package_dir / "bin" / "winkagent",
+        f"#!/bin/sh\nprintf 'winkagent {binary_version}\\n'\n",
     )
     write_executable(
-        package_dir / "bin" / "codex-code-mode-host",
+        package_dir / "bin" / "winkagent-code-mode-host",
         "#!/bin/sh\nexit 0\n",
     )
-    write_executable(package_dir / "codex-path" / "rg", "#!/bin/sh\nexit 0\n")
+    write_executable(package_dir / "winkagent-path" / "rg", "#!/bin/sh\nexit 0\n")
     if "linux" in target:
-        (package_dir / "codex-resources").mkdir()
-        write_executable(package_dir / "codex-resources/bwrap", "#!/bin/sh\nexit 0\n")
+        (package_dir / "winkagent-resources").mkdir()
+        write_executable(
+            package_dir / "winkagent-resources/bwrap", "#!/bin/sh\nexit 0\n"
+        )
 
     asset = f"winkagent-package-{target}.tar.gz"
     archive_path = root / asset
@@ -1217,7 +1219,7 @@ def create_legacy_release(root: Path) -> tuple[Path, str]:
     (vendor_dir / "path").mkdir()
     write_executable(
         vendor_dir / "codex" / "codex",
-        f"#!/bin/sh\nprintf 'codex-cli {VERSION}\\n'\n",
+        f"#!/bin/sh\nprintf 'winkagent {VERSION}\\n'\n",
     )
     write_executable(vendor_dir / "path" / "rg", "#!/bin/sh\nexit 0\n")
 

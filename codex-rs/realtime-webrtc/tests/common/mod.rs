@@ -23,9 +23,9 @@ pub const BUILD_COMMIT: &str = "0123456789abcdef0123456789abcdef01234567";
 pub const WAIT: Duration = Duration::from_secs(/*secs*/ 10);
 const APP: &str = if cfg!(windows) { "codex.exe" } else { "codex" };
 const HELPER: &str = if cfg!(windows) {
-    "codex-voice-host.exe"
+    "winkagent-voice-host.exe"
 } else {
-    "codex-voice-host"
+    "winkagent-voice-host"
 };
 
 pub fn wait_for(mut ready: impl FnMut() -> bool) -> Result<()> {
@@ -75,12 +75,12 @@ pub fn package(test: &str) -> Result<Option<PathBuf>> {
         Package(std::env::temp_dir().join(format!("voice-actor-{}-{nonce}", std::process::id())));
     let root = &package.0;
     fs::create_dir_all(root.join("bin"))?;
-    fs::create_dir_all(root.join("codex-resources/voice/bin"))?;
+    fs::create_dir_all(root.join("winkagent-resources/voice/bin"))?;
     fs::write(root.join("winkagent-package.json"), "{}")?;
     codex_utils_cargo_bin::copy_executable(&source, &root.join("bin").join(APP))?;
     codex_utils_cargo_bin::copy_executable(
         &source,
-        &root.join("codex-resources/voice/bin").join(HELPER),
+        &root.join("winkagent-resources/voice/bin").join(HELPER),
     )?;
     let mut child = Command::new(root.join("bin").join(APP))
         .args(["--exact", test, "--nocapture"])

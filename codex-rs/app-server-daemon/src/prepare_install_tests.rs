@@ -26,19 +26,20 @@ fn daemon(home: &std::path::Path) -> crate::Daemon {
 
 fn package(root: &Path, version: &str) -> PathBuf {
     let target = super::platform_target().expect("target");
-    for dir in ["bin", "codex-path", "codex-resources/nested"] {
+    for dir in ["bin", "winkagent-path", "winkagent-resources/nested"] {
         std::fs::create_dir_all(root.join(dir)).expect("package directory");
     }
     let bin = root.join("bin/winkagent");
     codex_utils_cargo_bin::write_executable(&bin, &format!("#!/bin/sh\necho 'codex {version}'\n"))
         .expect("codex executable");
-    for file in ["bin/codex-code-mode-host", "codex-path/rg"] {
+    for file in ["bin/winkagent-code-mode-host", "winkagent-path/rg"] {
         codex_utils_cargo_bin::write_executable(&root.join(file), "runtime")
             .expect("executable helper");
     }
-    std::fs::write(root.join("codex-resources/nested/runtime"), b"runtime").expect("package file");
+    std::fs::write(root.join("winkagent-resources/nested/runtime"), b"runtime")
+        .expect("package file");
     if cfg!(target_os = "linux") {
-        codex_utils_cargo_bin::write_executable(&root.join("codex-resources/bwrap"), "runtime")
+        codex_utils_cargo_bin::write_executable(&root.join("winkagent-resources/bwrap"), "runtime")
             .expect("executable bwrap");
     }
     std::fs::write(
@@ -74,7 +75,7 @@ async fn seeds_full_package() {
     let standalone = home.join("packages/app-server-daemon");
     let selected = std::fs::canonicalize(standalone.join("current")).expect("selected");
     assert_eq!(
-        std::fs::read(selected.join("codex-resources/nested/runtime")).expect("runtime"),
+        std::fs::read(selected.join("winkagent-resources/nested/runtime")).expect("runtime"),
         b"runtime"
     );
     assert_eq!(
@@ -94,13 +95,13 @@ async fn seeds_full_package() {
     let previous = releases.join(format!("0.151.0-{target}"));
     package(&old, "0.152.0");
     // Match the alias present in actual Unix downloads.
-    std::os::unix::fs::symlink("bin/winkagent", old.join("codex")).unwrap();
+    std::os::unix::fs::symlink("bin/winkagent", old.join("winkagent")).unwrap();
     package(&previous, "0.151.0");
     let outside = temp.path().join("outside");
     package(&outside, "0.149.0");
     let linked = releases.join(format!("0.148.0-{target}"));
     package(&linked, "0.148.0");
-    std::os::unix::fs::symlink(&outside, linked.join("codex-resources/other")).unwrap();
+    std::os::unix::fs::symlink(&outside, linked.join("winkagent-resources/other")).unwrap();
     let _operation_lock = daemon.acquire_operation_lock().await.unwrap();
     let _install_lock = crate::install_lock::acquire_install_lock(&root)
         .await
@@ -113,17 +114,21 @@ async fn seeds_full_package() {
     std::fs::remove_file(root.join("current")).unwrap();
     std::os::unix::fs::symlink(&selected, root.join("current")).unwrap();
     let _ = release_pruning::prune(&daemon, &root, &settings).await;
-    assert!(old.join("codex-resources/nested/runtime").is_file());
+    assert!(old.join("winkagent-resources/nested/runtime").is_file());
 
     release_pruning::record_selection(&root, Some(&previous)).unwrap();
     // Root can delete read-only files. Other users simulate a real partial failure.
     use std::os::unix::fs::PermissionsExt;
-    let read_only = old.join("codex-resources/nested");
+    let read_only = old.join("winkagent-resources/nested");
     std::fs::set_permissions(&read_only, std::fs::Permissions::from_mode(0o555)).unwrap();
     let _ = release_pruning::prune(&daemon, &root, &settings).await;
     assert!(!old.exists());
     for retained in [&selected, &previous, &outside, &linked] {
-        assert!(retained.join("codex-resources/nested/runtime").is_file());
+        assert!(
+            retained
+                .join("winkagent-resources/nested/runtime")
+                .is_file()
+        );
     }
 
     // Reinstall after a partial deletion, and verify that leftovers are not retried.
@@ -136,7 +141,7 @@ async fn seeds_full_package() {
             .find(|entry| entry.file_name().to_string_lossy().starts_with(".retired."))
             .unwrap()
             .path()
-            .join("release/codex-resources/nested");
+            .join("release/winkagent-resources/nested");
         std::fs::set_permissions(&leftover, std::fs::Permissions::from_mode(0o755)).unwrap();
         prepare_from_package(
             &daemon,
@@ -159,7 +164,7 @@ async fn incomplete_source_fails_without_selecting_it() {
     let temp = tempfile::TempDir::new().expect("temp");
     let source = temp.path().join("package");
     let bin = package(&source, "0.152.0");
-    std::fs::remove_file(source.join("bin/codex-code-mode-host")).expect("remove helper");
+    std::fs::remove_file(source.join("bin/winkagent-code-mode-host")).expect("remove helper");
     let home = temp.path().join("home");
     let error = prepare_from_package(
         &daemon(&home),
@@ -171,7 +176,7 @@ async fn incomplete_source_fails_without_selecting_it() {
     )
     .await
     .expect_err("incomplete package");
-    assert!(error.to_string().contains("bin/codex-code-mode-host"));
+    assert!(error.to_string().contains("bin/winkagent-code-mode-host"));
     assert!(!home.join("packages/app-server-daemon/current").exists());
 }
 
@@ -183,7 +188,7 @@ async fn provisioned_macos_bundle_seeds_from_its_running_executable() {
     let launcher = package(&source, "0.1.0-internal-test.202609091200.1");
     codex_utils_cargo_bin::write_executable(&launcher, "#!/bin/sh\necho codex 0.0.0\n")
         .expect("launcher");
-    let bundle = source.join("WinkAgentCLI.app/Contents/MacOS/codex");
+    let bundle = source.join("WinkAgentCLI.app/Contents/MacOS/winkagent");
     std::fs::create_dir_all(bundle.parent().expect("bundle parent")).expect("bundle dir");
     std::fs::write(&bundle, b"provisioned executable").expect("bundle executable");
     let home = temp.path().join("home");
@@ -200,7 +205,7 @@ async fn provisioned_macos_bundle_seeds_from_its_running_executable() {
     let selected = std::fs::canonicalize(home.join("packages/app-server-daemon/current"))
         .expect("selected release");
     assert_eq!(
-        std::fs::read(selected.join("WinkAgentCLI.app/Contents/MacOS/codex"))
+        std::fs::read(selected.join("WinkAgentCLI.app/Contents/MacOS/winkagent"))
             .expect("bundled executable"),
         b"provisioned executable"
     );
@@ -356,7 +361,7 @@ async fn explicit_selection_requires_unchanged_cli_and_pins_all_versions() {
             let previous_root = crate::managed_install::package_root(&home);
             package(&source, version);
             std::fs::write(
-                source.join("codex-resources/nested/runtime"),
+                source.join("winkagent-resources/nested/runtime"),
                 previous.to_string_lossy().as_bytes(),
             )
             .unwrap();

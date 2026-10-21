@@ -19,12 +19,12 @@ The builder creates a canonical WinkAgent package directory:
 ├── winkagent-package.json
 ├── bin
 │   ├── <entrypoint>[.exe]
-│   └── codex-code-mode-host[.exe]
-├── codex-resources
+│   └── winkagent-code-mode-host[.exe]
+├── winkagent-resources
 │   ├── bwrap                             # Linux only
-│   ├── codex-command-runner.exe          # Windows only
-│   └── codex-windows-sandbox-setup.exe   # Windows only
-└── codex-path
+│   ├── winkagent-command-runner.exe          # Windows only
+│   └── winkagent-windows-sandbox-setup.exe   # Windows only
+└── winkagent-path
     └── rg[.exe]
 ```
 

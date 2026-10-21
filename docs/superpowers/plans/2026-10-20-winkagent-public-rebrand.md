@@ -296,7 +296,7 @@ foreach ($file in $files) {
 }
 ```
 
-Update package tests so the primary entrypoint is `bin/winkagent` and the package manifest is `winkagent-package.json`. Keep `codex-path`, `codex-resources`, `codex-code-mode-host`, `codex-command-runner`, and `codex-windows-sandbox-setup` unchanged.
+Update package tests so the primary entrypoint is `bin/winkagent` and the package manifest is `winkagent-package.json`. Rename public package directories and helper files to `winkagent-*` while keeping internal Cargo target names stable.
 
 - [ ] **Step 5: Run the branding test and verify GREEN**
 
@@ -509,7 +509,7 @@ PACKAGE_VARIANTS = {
 }
 ```
 
-In `scripts/codex_package/layout.py`, use `winkagent-package.json` as the manifest file. Keep `codex-resources`, `codex-path`, and helper names unchanged.
+In `scripts/codex_package/layout.py`, use `winkagent-package.json` as the manifest file and emit `winkagent-resources`, `winkagent-path`, and `winkagent-*` public helper names.
 
 In `scripts/codex_package/cli.py`, change the default package to `winkagent` and user-facing descriptions to WinkAgent.
 

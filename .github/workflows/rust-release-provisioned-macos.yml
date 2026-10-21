@@ -101,7 +101,7 @@ jobs:
             --certificate-sha256 "$CERTIFICATE_SHA256" --team-id "$TEAM_ID"
           mkdir signed
           tar -czf "signed/codex-provisioned-package-$TARGET.tar.gz" -C package \
-            bin codex-resources codex-path winkagent-package.json WinkAgentCLI.app
+            bin winkagent-resources winkagent-path winkagent-package.json WinkAgentCLI.app
       - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: provisioned-macos-signed-candidate-${{ matrix.target }}
@@ -177,7 +177,7 @@ jobs:
           python3 .github/scripts/macos-signing/sign_macos_cli_package.py verify package "${profile_args[@]}"
           mkdir verified
           tar -czf "verified/codex-provisioned-package-$TARGET.tar.gz" -C package \
-            bin codex-resources codex-path winkagent-package.json WinkAgentCLI.app
+            bin winkagent-resources winkagent-path winkagent-package.json WinkAgentCLI.app
           (cd verified && shasum -a 256 "codex-provisioned-package-$TARGET.tar.gz" > SHA256SUMS)
       - uses: ./.github/actions/setup-ci
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
