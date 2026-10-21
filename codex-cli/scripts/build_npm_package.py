@@ -87,6 +87,10 @@ PACKAGE_TARGET_FILTERS: dict[str, str] = {
 }
 
 PACKAGE_CHOICES = tuple(PACKAGE_NATIVE_COMPONENTS)
+BUNDLE_TARGETS = tuple(
+    package_config["target_triple"]
+    for package_config in CODEX_PLATFORM_PACKAGES.values()
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -131,6 +135,15 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         help="Directory containing pre-installed native binaries to bundle (vendor root).",
     )
+    parser.add_argument(
+        "--bundle-target",
+        action="append",
+        choices=BUNDLE_TARGETS,
+        help=(
+            "Bundle native package contents for this target into the main winkagent "
+            "package. May be repeated. Requires --vendor-src."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -151,11 +164,29 @@ def main() -> int:
         raise RuntimeError("Must specify --version or --release-version.")
 
     staging_dir, created_temp = prepare_staging_dir(args.staging_dir)
+    bundle_targets = tuple(args.bundle_target or ())
+    if bundle_targets and package != "winkagent":
+        raise RuntimeError("--bundle-target is only supported for the winkagent package.")
+    if bundle_targets and args.vendor_src is None:
+        raise RuntimeError("--bundle-target requires --vendor-src.")
 
     try:
-        stage_sources(staging_dir, version, package)
+        stage_sources(
+            staging_dir,
+            version,
+            package,
+            bundle_targets=bundle_targets,
+        )
 
         vendor_src = args.vendor_src.resolve() if args.vendor_src else None
+        if bundle_targets and vendor_src is not None:
+            copy_native_binaries(
+                vendor_src,
+                staging_dir,
+                [CODEX_PACKAGE_COMPONENT],
+                target_filter=set(bundle_targets),
+            )
+
         native_components = PACKAGE_NATIVE_COMPONENTS.get(package, [])
         target_filter = PACKAGE_TARGET_FILTERS.get(package)
 
@@ -229,7 +260,13 @@ def prepare_staging_dir(staging_dir: Path | None) -> tuple[Path, bool]:
     return temp_dir, True
 
 
-def stage_sources(staging_dir: Path, version: str, package: str) -> None:
+def stage_sources(
+    staging_dir: Path,
+    version: str,
+    package: str,
+    *,
+    bundle_targets: tuple[str, ...] = (),
+) -> None:
     package_json: dict
     package_json_path: Path | None = None
 
@@ -301,14 +338,18 @@ def stage_sources(staging_dir: Path, version: str, package: str) -> None:
 
     if package == "winkagent":
         package_json["files"] = ["bin/winkagent.js"]
-        package_json["optionalDependencies"] = {
-            CODEX_PLATFORM_PACKAGES[platform_package]["npm_name"]: (
-                f"npm:{CODEX_NPM_NAME}@"
-                f"{compute_platform_package_version(version, CODEX_PLATFORM_PACKAGES[platform_package]['npm_tag'])}"
-            )
-            for platform_package in PACKAGE_EXPANSIONS["winkagent"]
-            if platform_package != "winkagent"
-        }
+        if bundle_targets:
+            package_json["files"].append("vendor")
+            package_json.pop("optionalDependencies", None)
+        else:
+            package_json["optionalDependencies"] = {
+                CODEX_PLATFORM_PACKAGES[platform_package]["npm_name"]: (
+                    f"npm:{CODEX_NPM_NAME}@"
+                    f"{compute_platform_package_version(version, CODEX_PLATFORM_PACKAGES[platform_package]['npm_tag'])}"
+                )
+                for platform_package in PACKAGE_EXPANSIONS["winkagent"]
+                if platform_package != "winkagent"
+            }
 
     elif package == "codex-sdk":
         scripts = package_json.get("scripts")
@@ -432,7 +473,13 @@ def run_npm_pack(staging_dir: Path, output_path: Path) -> Path:
         env["NPM_CONFIG_CACHE"] = str(npm_cache_dir)
         env["NPM_CONFIG_LOGS_DIR"] = str(npm_logs_dir)
         stdout = subprocess.check_output(
-            ["npm", "pack", "--json", "--pack-destination", str(pack_dir)],
+            [
+                npm_executable(),
+                "pack",
+                "--json",
+                "--pack-destination",
+                str(pack_dir),
+            ],
             cwd=staging_dir,
             env=env,
             text=True,
@@ -456,6 +503,15 @@ def run_npm_pack(staging_dir: Path, output_path: Path) -> Path:
         shutil.move(str(tarball_path), output_path)
 
     return output_path
+
+
+def npm_executable() -> str:
+    if os.name == "nt":
+        npm_cmd = shutil.which("npm.cmd")
+        if npm_cmd is not None:
+            return npm_cmd
+
+    return shutil.which("npm") or "npm"
 
 
 if __name__ == "__main__":

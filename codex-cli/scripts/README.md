@@ -21,3 +21,8 @@ that are later published under platform-specific dist-tags.
 Direct `build_npm_package.py` invocations are still useful for package-specific
 debugging, but native packages expect `--vendor-src` to point at a prehydrated
 `vendor/` tree. Release packaging should use `scripts/stage_npm_packages.py`
+
+For a self-contained local Windows package, point `--vendor-src` at a directory
+containing `x86_64-pc-windows-msvc/` and add
+`--bundle-target x86_64-pc-windows-msvc`. This bundles the native package under
+`vendor/` and removes the unpublished platform optional dependencies.
